@@ -2,9 +2,11 @@ function Header() {
     return (
         <header className="site-header">
             <div className="brand">
-            <img src="/Danlogo.jpg" alt="Dan's Computer Repair Logo" width="80" height="80" />
-            <h1> Dan's Computer Repair</h1>
-            <p>IT Services and Computer Repair</p>
+                <img src="/Danlogo.jpg" alt="Dan's Computer Repair Logo" width="80" height="80" />
+                <div className="brand-text">
+                    <h1> Dan's Computer Repair</h1>
+                    <p>IT Services and Computer Repair</p>
+                </div>
             </div>
             <nav className="main-nav">
                 <ul className="nav-list">

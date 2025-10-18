@@ -74,7 +74,16 @@ body {
 }
 
 .brand-text p {
-  margin: 0;
-  font-size: 0.9rem;
-  color: #555;
+  /* small subtitle under the main title */
+  margin: 4px 0 0;
+  font-size: 0.85rem;
+  line-height: 1.1;
+  color: inherit;
+  opacity: 0.75;
+}
+
+/* make the main title a bit more prominent */
+.brand-text h1 {
+  font-size: 1.25rem;
+  font-weight: 600;
 }
