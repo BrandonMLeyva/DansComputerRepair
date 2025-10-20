@@ -11,9 +11,22 @@ function Header() {
             <nav className="main-nav">
                 <ul className="nav-list">
                     <li><a href="/">Home</a></li>
-                    <li><a href="/about">About</a></li>
-                    <li><a href="/services">Services</a></li>
-                    <li><a href="/contact">Contact</a></li>
+                    <li><a href="/about">Products</a></li>
+                    <li><a href="/services">Service Request</a></li>
+                    {/* admin login button with different styling from other links */}
+                    <li>
+                        <a
+                            href="/contact"
+                            style={{
+                                background: '#333',
+                                color: '#fff',
+                                padding: '6px 10px',
+                                borderRadius: '6px',
+                                textDecoration: 'none',
+                                display: 'inline-block'
+                            }}
+                        >Admin Login</a>
+                    </li>
                 </ul>
             </nav>
         </header>
