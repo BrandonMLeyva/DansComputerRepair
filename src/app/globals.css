@@ -54,14 +54,16 @@ body {
   padding: 0;
 }
 
-.nav-list a {
+.nav-list a,
+.nav-list button {
   text-decoration: none;
   color: inherit;
   padding: 6px 10px;
   border-radius: 6px;
 }
 
-.nav-list a:hover {
+.nav-list a:hover,
+.nav-list button:hover {
   background-color: #f2f2f2;
 }
 
