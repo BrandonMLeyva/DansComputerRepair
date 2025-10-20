@@ -68,7 +68,7 @@ export default function AdminLoginPage() {
               />
             </div>
 
-            {/* Sign in button */}
+            {/* Sign in button. */}
             <button
               type="submit"
               className="w-full bg-[#8fbd7e] hover:bg-[#8fbd7e] text-white font-medium py-2 rounded-sm mt-2"
