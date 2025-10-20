@@ -1,103 +1,142 @@
-import Image from "next/image";
+"use client";
+import { useEffect, useState } from "react";
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [index, setIndex] = useState(0);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const reviews = [
+    {
+      type: "local",
+      name: "Pat O",
+      rating: 5,
+      date: "6/18/2025",
+      text: "Very honest, very knowledgeable. 5-star video card and power supply install. Will I use him again? Yes.",
+      photos: [
+      "/images/brokenlaptop.jpg",
+    ],
+    },
+    {
+      type: "local",
+      name: "Jessica V",
+      rating: 5,
+      date: "5/12/2025",
+      text: "Fast, friendly, and professional service. Fixed my laptop in no time!",
+    },
+    {type: "yelp", 
+      embed: ` <span class="yelp-review" data-review-id="obNvJEsjNpDHE8P0Aji5uw" data-hostname="www.yelp.com">
+      Read <a href="https://www.yelp.com/user_details?userid=ZcBia4ui1wKLn4r0fuUgBw" rel="nofollow noopener">Emmanuel N.</a>'s 
+      <a href="https://www.yelp.com/biz/dan-s-computer-repair-sacramento-2?hrid=obNvJEsjNpDHE8P0Aji5uw" rel="nofollow noopener">review</a> 
+      of <a href="https://www.yelp.com/biz/rm7wutt8n6aimfyUVd8Fqg" rel="nofollow noopener">Dan’s Computer Repair</a> on 
+      <a href="https://www.yelp.com" rel="nofollow noopener">Yelp</a>
+    </span>`},
+    {type: "yelp", 
+      embed:`<span class="yelp-review" data-review-id="o3f-kqbIRbJNKvaiHmOCrA" data-hostname="www.yelp.com">
+      Read <a href="https://www.yelp.com/user_details?userid=UhDS4R5uewlxzbXxgaSb1g" rel="nofollow noopener">Jessica V.</a>'s 
+      <a href="https://www.yelp.com/biz/dan-s-computer-repair-sacramento-2?hrid=o3f-kqbIRbJNKvaiHmOCrA" rel="nofollow noopener">review</a> 
+      of <a href="https://www.yelp.com/biz/rm7wutt8n6aimfyUVd8Fqg" rel="nofollow noopener">Dan’s Computer Repair</a> on
+      <a href="https://www.yelp.com" rel="nofollow noopener">Yelp</a>
+    </span>`},
+    {type: "yelp", 
+      embed:`<span class="yelp-review" data-review-id="dS1bNufO6xIrpywibYK1cg" data-hostname="www.yelp.com">
+      Read <a href="https://www.yelp.com/user_details?userid=nxRUDtmFRdbHtVSG5q_ekA" rel="nofollow noopener">Gerry Andre</a>'s 
+      <a href="https://www.yelp.com/biz/dan-s-computer-repair-sacramento-2?hrid=dS1bNufO6xIrpywibYK1cg" rel="nofollow noopener">review</a> 
+      of <a href="https://www.yelp.com/biz/rm7wutt8n6aimfyUVd8Fqg" rel="nofollow noopener">Dan’s Computer Repair</a> on 
+      <a href="https://www.yelp.com" rel="nofollow noopener">Yelp</a>
+    </span>`},
+  ];
+
+  useEffect(() => {
+  if (reviews[index].type === "yelp") {
+    const script = document.createElement("script");
+    script.src = "https://www.yelp.com/embed/widgets.js";
+    script.async = true;
+
+    script.onload = () => {
+      document.body.classList.add("yelp-embed-loaded");
+    }
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.classList.remove("yelp-embed-loaded");
+      document.body.removeChild(script);
+    };
+  }
+}, [index]);
+
+  const nextReview = () => setIndex((index + 1) % reviews.length);
+  const prevReview = () => setIndex((index - 1 + reviews.length) % reviews.length);
+
+return (
+    <main className="flex flex-col min-h-screen">
+      {/* --- Blank space for future content --- */}
+      <section className="flex-grow flex items-center justify-center"></section>
+
+      {/* --- Yelp Reviews Section --- */}
+      <section className="bg-white text-black py-16">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <h2 className="text-2xl font-semibold mb-10">
+            Reviews For Dan’s Computer Repair
+          </h2>
+
+          <div className="flex items-center justify-center gap-6">
+            {/* < Button */}
+            <button
+              onClick={prevReview}
+              className="text-3xl bg-white text-black px-4 py-2 rounded-full hover:bg-gray-700 transition"
+            >
+              {'<'}
+            </button>
+
+            {/* Review box */}
+          <div
+  key={index}
+  className={`bg-gray-300 text-black rounded-lg p-8 w-full max-w-3xl min-h-[250px] flex flex-col justify-center text-center shadow-md ${
+    reviews[index].type === "yelp" ? "items-stretch" : "items-center"
+  }`}
+>
+  {reviews[index].type === "local" ? (
+    <>
+      <div className="flex justify-between w-full">
+        <span className="font-semibold">{reviews[index].name}</span>
+        
+      </div>
+      <div className="flex justify-between w-full mb-2 text-2xl">
+        {"★".repeat(reviews[index].rating)}
+        {"☆".repeat(5 - reviews[index].rating)}
+        <span className="text-base ml-10">{reviews[index].date}</span>
+      </div>
+      <div className="flex justify-between w-full mb-2">
+      <p className="text-base indent-0">{reviews[index].text}</p>
+      </div>
+      {/* ✅ Add this: Photo Gallery */}
+    {reviews[index].photos && (
+      <div className="flex flex-wrap justify-center gap-4 mt-2">
+        {reviews[index].photos.map((photo, i) => (
+          <img
+            key={i}
+            src={photo}
+            alt={`Review photo ${i + 1}`}
+            className="max-h-32 object-cover rounded-lg shadow-md hover:scale-105 transition-transform"
+          />
+        ))}
+      </div>
+    )}
+    </>
+  ) : (
+    <div dangerouslySetInnerHTML={{ __html: reviews[index].embed }} />
+  )}
+</div>
+
+            {/* > Button */}
+            <button
+              onClick={nextReview}
+              className="text-3xl bg-white text-black px-4 py-2 rounded-full hover:bg-gray-700 transition"
+            >
+              {'>'}
+            </button>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      </section>
+    </main>
   );
 }
