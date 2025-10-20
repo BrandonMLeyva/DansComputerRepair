@@ -1,8 +1,27 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 function Header() {
     const [isDropdownOpen, setDropdownOpen] = useState(false);
+
+    const dropdownRef = useRef(null);
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                const button = dropdownRef.current.previousSibling;
+                if (button && button.contains(event.target)) {
+                    return;
+                }
+                setDropdownOpen(false);
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     const services = [
         "Data recovery",
@@ -31,7 +50,7 @@ function Header() {
                     <li className="relative"> 
                         <button onClick={() => setDropdownOpen(!isDropdownOpen)}>Service Request</button>
                         {isDropdownOpen && (
-                            <div className="absolute left-1/2 -translate-x-1/2 w-[380px] bg-white border border-black p-1">
+                            <div ref={dropdownRef} className="absolute left-1/2 -translate-x-1/2 w-[380px] bg-white border border-black p-1">
                             {/* <div className="absolute left-1/2 -translate-x-1/2 mt-3 w-[380px] bg-white border border-black p-6"> */}
                                 <p className="text-center text-black text-lg font-medium mb-4">
                                     Select a service
@@ -79,26 +98,3 @@ function Header() {
     )
 }
 export default Header;
-
-
-            // {isDropdownOpen && (
-            //     <div>
-            //         <ul className="py-1">
-            //             <li>
-            //                 <a href="/intake" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-            //                     New Request
-            //                 </a>
-            //             </li>
-            //             <li>
-            //                 <a href="/status" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-            //                         Check Status
-            //                 </a>
-            //             </li>
-            //             <li>
-            //                 <a href="/contact" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-            //                     Contact Us
-            //                 </a>
-            //             </li>
-            //         </ul>
-            //             </div>
-            // )}
