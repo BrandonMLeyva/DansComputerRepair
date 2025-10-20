@@ -37,17 +37,22 @@ function Header() {
                                     Select a service
                                 </p>
                                 <ul className="space-y-1">
-                                    {services.map((service, index) => (
-                                        <li key={index}>
-                                            <a 
-                                                href={`/services/${service.toLowerCase().replace(/ /g, '-')}`}
-                                                className="!rounded-none block w-full text-center bg-gray-300 border border-black !py-3 text-black hover:bg-gray-400 transition-colors"
-                                                // className="block w-full text-center bg-gray-300 border border-black rounded-none py-3 text-black hover:bg-gray-400 transition-colors"
-                                            >
-                                                {service}
-                                            </a>
-                                        </li>
-                                    ))}
+                                    {services.map((service, index) => {
+                                        let linkUrl = "/services"; // default link(should change later)
+                                        if (service === "Data recovery" || service === "Telecom or Network services") {
+                                            linkUrl = "/service-request";
+                                        }
+                                        return (
+                                            <li key={index}>
+                                                <a 
+                                                    href={linkUrl}
+                                                    className="!rounded-none block w-full text-center bg-gray-300 border border-black !py-3 text-black hover:bg-gray-400 transition-colors"
+                                                >
+                                                    {service}
+                                                </a>
+                                            </li>
+                                        );
+                                    })}
                                 </ul>
                             </div>
                         )}
