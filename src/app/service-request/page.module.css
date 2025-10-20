@@ -1,0 +1,93 @@
+.pageWrap {
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.title {
+  /* match Tailwind text-3xl + font-semibold used on the admin page */
+  font-size: 1.875rem; /* 30px (text-3xl) */
+  font-weight: 600; /* semibold */
+  margin-bottom: 24px; /* similar spacing to admin */
+  width: 100%;
+  max-width: 960px; /* align with form box */
+  text-align: left;
+}
+
+.formBox {
+  width: 100%;
+  max-width: 960px;
+  border: 1px solid #bdbdbd; /* darker border */
+  padding: 28px;
+  background: #fff;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.03);
+}
+
+.sectionHeader {
+  font-weight: 600;
+  margin-top: 6px;
+  margin-bottom: 12px;
+}
+
+.grid3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  /* match Tailwind text-sm (0.875rem) used on admin labels */
+  font-size: 0.875rem; /* 14px */
+  color: #111; /* slightly darker for consistency */
+  margin-bottom: 4px;
+}
+
+.input {
+  padding: 8px 10px;
+  border: 1px solid #8d8d8d; /* darker input border */
+  border-radius: 2px;
+  font-size: 14px;
+  outline-color: #6bb06b;
+}
+
+.textarea {
+  min-height: 120px;
+  padding: 10px;
+  border: 1px solid #8d8d8d; /* darker textarea border */
+  border-radius: 2px;
+  font-size: 14px;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 18px;
+}
+
+.submitBtn {
+  background: #6bb06b;
+  color: white;
+  border: none;
+  padding: 12px 80px;
+  cursor: pointer;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.message { margin-top: 10px; }
+.success { margin-top: 10px; color: green; }
+.error { margin-top: 10px; color: #d00; }

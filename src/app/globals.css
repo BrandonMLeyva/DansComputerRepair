@@ -31,3 +31,66 @@ body {
 .yelp-embed-loaded .yelp-review {
   display: block;
 }
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  border-bottom: 1px solid #ddd;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* space between logo and title */
+}
+
+.nav-list {
+  display: flex;
+  gap: 16px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-list a {
+  text-decoration: none;
+  color: inherit;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.nav-list a:hover {
+  background-color: #f2f2f2;
+}
+
+.brand img {
+  height: 60px;
+  width: auto;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.brand-text h1 {
+  margin: 0;
+}
+
+.brand-text p {
+  /* small subtitle under the main title */
+  margin: 4px 0 0;
+  font-size: 0.85rem;
+  line-height: 1.1;
+  color: inherit;
+  opacity: 0.75;
+}
+
+/* make the main title a bit more prominent */
+.brand-text h1 {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
