@@ -75,7 +75,7 @@ export default function ReviewFormPage() {
                         </div>
                     </form>
 
-                    {/*Button to submit the review*/}
+                    {/*Button to submit the review.*/}
                     <div className="border-t border-neutral-300 p-6 md:p-8">
                         <div className="flex justify-center items-center gap-2">
                             <span className="text-sm text-neutral-600"></span>
