@@ -1,9 +1,35 @@
 "use client";
-import { useState } from "react";
+import { use, useState } from "react";
 import { Eye, EyeOff } from "lucide-react"; // 2 icons for password state
+import { supabase } from "@/lib/supabase/client";
 
 export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false);  // hide password by default
+  const [email, setEmail] = useState(""); // used by supabase
+  const [password, setPassword] = useState(""); // used by supabase
+  const [loading, setLoading] = useState(false);  // used by supabase
+  const [error, setError] = useState("");  // used by supabase
+
+async function handleSubmit(e) {
+  e.preventDefault();
+  setError("");
+  setLoading(true);
+
+  const email = email.trim();
+
+  const {data, error} = await supabase.auth.signInWithPassword({email, password,})
+  setLoading(false);
+
+  if (error) {
+    console.error(error);
+    setError(error.message);
+  } else {
+    console.log("Logged in with user: ", data.user);
+    alert("Successful login.");
+    // Do we handle a redirect here?
+  }
+
+}
 
   return (
     <main className="min-h-screen bg-white text-black">
