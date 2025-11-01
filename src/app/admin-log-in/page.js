@@ -1,9 +1,35 @@
 "use client";
-import { useState } from "react";
+import { use, useState } from "react";
 import { Eye, EyeOff } from "lucide-react"; // 2 icons for password state
+import { supabase } from "@/lib/supabase/client";
 
 export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false);  // hide password by default
+  const [email, setEmail] = useState(""); // used by supabase
+  const [password, setPassword] = useState(""); // used by supabase
+  const [loading, setLoading] = useState(false);  // used by supabase
+  const [error, setError] = useState("");  // used by supabase
+
+async function handleSubmit(e) {
+  e.preventDefault();
+  setError("");
+  setLoading(true);
+
+  const emailTrimmed = email.trim();
+
+  const {data, error} = await supabase.auth.signInWithPassword({email: emailTrimmed, password,})
+  setLoading(false);
+
+  if (error) {
+    console.error(error);
+    setError(error.message);
+  } else {
+    console.log("Logged in with user: ", data.user);
+    alert("Successful login.");
+    // Do we handle a redirect here?
+  }
+
+}
 
   return (
     <main className="min-h-screen bg-white text-black">
@@ -12,15 +38,18 @@ export default function AdminLoginPage() {
 
         {/* Card Area */}
         <div className="border border-neutral-300 rounded-md bg-white">
-          <form className="p-6 md:p-8 space-y-4">
-            {/* Email / Phone */}
+          <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-4">
+            {/* Email Only */}
             <div>
-              <label className="block text-sm mb-1">Email address / Phone</label>
+              <label className="block text-sm mb-1">Email address</label>
               <input
                 type="text"
-                name="emailPhone"
-                placeholder="Enter email address or phone number"
+                name="email"
+                placeholder="Enter email address "
                 className="w-full border border-black rounded-sm px-3 py-2"
+                value = {email}
+                onChange= {(e) => setEmail(e.target.value)}
+                required
               />
             </div>
 
@@ -32,6 +61,9 @@ export default function AdminLoginPage() {
                   type={showPassword ? "text" : "password"}
                   name="password"
                   className="w-full border border-black rounded-sm px-3 py-2 pr-10"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
                 />
                 <button
                   type="button"
@@ -46,6 +78,10 @@ export default function AdminLoginPage() {
                 </button>
               </div>
             </div>
+
+            {/* Show auth error and making the button react to when signing in
+                Currently always shows error, need to fix*/}
+            {error && <div className="text-red-600 text-sm">{error}</div>}
 
             {/* Remember me + Forgot password */}
             <div className="flex items-center justify-between text-sm mb-8">
@@ -71,9 +107,10 @@ export default function AdminLoginPage() {
             {/* Sign in button. */}
             <button
               type="submit"
-              className="w-full bg-[#8fbd7e] hover:bg-[#8fbd7e] text-white font-medium py-2 rounded-sm mt-2"
+              disabled={loading}
+              className="w-full bg-[#8fbd7e] hover:bg-[#6dab5c] text-white font-medium py-2 rounded-sm mt-2"
             >
-              Sign in
+              {loading ? "Loading..." : "Sign In"}
             </button>
           </form>
 
