@@ -94,15 +94,16 @@ async function handleSubmit(e) {
               </a>
             </div>
 
-            {/* Verify code (half width, aligned left) */}
-            <div>
+            {/* Verify code (half width, aligned left) 
+                TEMPORARILY REMOVED, may be fullr removed later*/}
+            {/* <div>
               <input
                 type="text"
                 name="verifyCode"
                 placeholder="Enter verify code"
                 className="w-1/2 border border-black rounded-sm px-3 py-2"
               />
-            </div>
+            </div> */}
 
             {/* Sign in button. */}
             <button
