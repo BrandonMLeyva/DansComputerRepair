@@ -15,9 +15,9 @@ async function handleSubmit(e) {
   setError("");
   setLoading(true);
 
-  const email = email.trim();
+  const emailTrimmed = email.trim();
 
-  const {data, error} = await supabase.auth.signInWithPassword({email, password,})
+  const {data, error} = await supabase.auth.signInWithPassword({email: emailTrimmed, password,})
   setLoading(false);
 
   if (error) {
@@ -38,15 +38,18 @@ async function handleSubmit(e) {
 
         {/* Card Area */}
         <div className="border border-neutral-300 rounded-md bg-white">
-          <form className="p-6 md:p-8 space-y-4">
-            {/* Email / Phone */}
+          <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-4">
+            {/* Email Only */}
             <div>
-              <label className="block text-sm mb-1">Email address / Phone</label>
+              <label className="block text-sm mb-1">Email address</label>
               <input
                 type="text"
-                name="emailPhone"
-                placeholder="Enter email address or phone number"
+                name="email"
+                placeholder="Enter email address "
                 className="w-full border border-black rounded-sm px-3 py-2"
+                value = {email}
+                onChange= {(e) => setEmail(e.target.value)}
+                required
               />
             </div>
 
@@ -58,6 +61,9 @@ async function handleSubmit(e) {
                   type={showPassword ? "text" : "password"}
                   name="password"
                   className="w-full border border-black rounded-sm px-3 py-2 pr-10"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
                 />
                 <button
                   type="button"
@@ -72,6 +78,10 @@ async function handleSubmit(e) {
                 </button>
               </div>
             </div>
+
+            {/* Show auth error and making the button react to when signing in
+                Currently always shows error, need to fix*/}
+            {error && <div className="text-red-600 text-sm">{error}</div>}
 
             {/* Remember me + Forgot password */}
             <div className="flex items-center justify-between text-sm mb-8">
@@ -97,9 +107,10 @@ async function handleSubmit(e) {
             {/* Sign in button. */}
             <button
               type="submit"
-              className="w-full bg-[#8fbd7e] hover:bg-[#8fbd7e] text-white font-medium py-2 rounded-sm mt-2"
+              disabled={loading}
+              className="w-full bg-[#8fbd7e] hover:bg-[#6dab5c] text-white font-medium py-2 rounded-sm mt-2"
             >
-              Sign in
+              {loading ? "Loading..." : "Sign In"}
             </button>
           </form>
 
