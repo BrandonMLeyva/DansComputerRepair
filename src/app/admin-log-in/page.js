@@ -2,6 +2,7 @@
 import { use, useState } from "react";
 import { Eye, EyeOff } from "lucide-react"; // 2 icons for password state
 import { supabase } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
 
 export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false);  // hide password by default
@@ -10,6 +11,13 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);  // used by supabase
   const [error, setError] = useState("");  // used by supabase
 
+  // MFA with TOTP (Time-based One Time Password)
+  const [mfaOpen, setMfaOpen] = useState(false);
+  const [mfaCode, setMfaCode] = useState("");
+  const [mfaError, setMfaError] = useState("");
+  const [mfaFactorId, setMfaFactorId] = useState(null);
+  const router = useRouter();
+
 async function handleSubmit(e) {
   e.preventDefault();
   setError("");
@@ -17,19 +25,86 @@ async function handleSubmit(e) {
 
   const emailTrimmed = email.trim();
 
-  const {data, error} = await supabase.auth.signInWithPassword({email: emailTrimmed, password,})
-  setLoading(false);
+  try {
+    // The regular login
+    const { error: authError} = await supabase.auth.signInWithPassword({email: emailTrimmed, password,});
+    if (authError) {
+    setError(authError.message);
+    return;
+    }
 
-  if (error) {
-    console.error(error);
-    setError(error.message);
-  } else {
-    console.log("Logged in with user: ", data.user);
-    alert("Successful login.");
-    // Do we handle a redirect here?
+    // Checks the AAL
+    const { data: aalData, error: aalError} = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (aalError) {
+    setError (aalError.message);
+    return;
+    }
+
+    // If already AAL2 verified, then routes you to /admin
+    if (aalData?.currentLevel === "aal2") {
+       // Basic code, replace with real redirect.
+      router.replace("/admin");
+      return;
+    }
+
+    // If not AAl2 verified, then it will prompt TOTP factors?
+    const {data: factors, error: listErr} = await supabase.auth.mfa.listFactors();
+    if (listErr) {
+      setError(listErr.message);
+      return; 
+    }
+
+    // Checks if the user has a MFA setup.
+    const TOTP = factors?.totp?.factors || [];
+    const verifiedTOTP = TOTP.find(f => f.status === "verified");
+    // If no MFA, then it prompts this error message.
+    if (!verifiedTOTP)   {
+      // Either send them to sign up page for MFA, or prompt them on the spot.
+      setError("User currently does not have a MFA setup. Please setup MFA before logging in.")
+      return;
+    } 
+
+    // Create a challenge and open MFA popup. I believe this part is related to using existing factors.
+    const {error: chalErr} = await supabase.auth.mfa.challenge({factorId: verifiedTOTP.id,});
+    if (chalErr) {
+      setError(chalErr.message);
+      return;
+    }
+
+    // Setup was successful, will prompt user for their code.
+    setMfaFactorId(verifiedTOTP.id);
+    setMfaCode("");
+    setMfaError("");
+    setMfaOpen(true);
+  } catch (e) {
+      console.error(e);
+      setError("Network error. Reload and try again.");
+  } finally {
+      setLoading(false);
   }
+}  
 
+async function submitMFA(e) {
+  e.preventDefault();
+  setMfaError("");
+  if (!mfaFactorId) {
+    setMfaError("No TOTP factor.");
+    return;
 }
+
+    // Verify the 6-digit MFA code
+    const {error: verifyErr} = await supabase.auth.mfa.verify({factorId: mfaFactorId, code: mfaCode.trim(),});
+    if (verifyErr) {
+      setMfaError(verifyErr.message || "Invalid code");
+      return;
+    }
+
+    // User login with MFA was successful
+    setMfaOpen(false);
+    setMfaCode("");
+    // Basic code, replace with real redirect.
+    //router.replace("/admin");
+  }
 
   return (
     <main className="min-h-screen bg-white text-black">
@@ -43,7 +118,7 @@ async function handleSubmit(e) {
             <div>
               <label className="block text-sm mb-1">Email address</label>
               <input
-                type="text"
+                type="email"
                 name="email"
                 placeholder="Enter email address "
                 className="w-full border border-black rounded-sm px-3 py-2"
@@ -95,7 +170,7 @@ async function handleSubmit(e) {
             </div>
 
             {/* Verify code (half width, aligned left) 
-                TEMPORARILY REMOVED, may be fullr removed later*/}
+                TEMPORARILY REMOVED, may be fully removed later*/}
             {/* <div>
               <input
                 type="text"
@@ -127,6 +202,49 @@ async function handleSubmit(e) {
           </div>
         </div>
       </section>
+
+      {/* MFA Popup */}
+      {mfaOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="w-full max-w-sm bg-white rounded-md p-6 space-y-4 shadow-xl">
+            <h2 className="text-lg font-semibold">Two-factor Verification</h2>
+            <p className="text-sm text-neutral-600">
+              Enter the 6-digit code from your authenticator app.
+            </p>
+
+            <form onSubmit={submitMFA} className="space-y-3">
+              <input
+                inputMode="numeric"
+                pattern="[0-9]{6}"
+                maxLength={6}
+                className="w-full border border-black rounded-sm px-3 py-2"
+                placeholder="123456"
+                value={mfaCode}
+                onChange={(e) => setMfaCode(e.target.value)}
+                autoFocus
+                required
+              />
+              {mfaError && <div className="text-red-600 text-sm">{mfaError}</div>}
+
+              <div className="flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  className="px-3 py-2 border rounded-sm"
+                  onClick={async () => {
+                    setMfaOpen(false);
+                    setMfaCode("");
+                    await supabase.auth.signOut();
+                  }}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="px-3 py-2 bg-black text-white rounded-sm">
+                  Verify
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>)}
     </main>
   );
 }
