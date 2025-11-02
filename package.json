@@ -9,7 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.76.1",
+    "@supabase/supabase-js": "^2.78.0",
+    "@supabase/ssr": "^0.7.0",
+    "dayjs": "^1.11.18",
     "lucide-react": "^0.546.0",
     "next": "15.5.5",
     "react": "19.1.0",
@@ -20,6 +22,7 @@
     "@tailwindcss/postcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.5.5",
+    "supabase": "^2.54.11",
     "tailwindcss": "^4"
   }
 }
