@@ -55,7 +55,7 @@ async function handleSubmit(e) {
     }
 
     // Checks if the user has a MFA setup.
-    const TOTP = factors?.totp?.factors || [];
+    const TOTP = factors.totp || [];
     const verifiedTOTP = TOTP.find(f => f.status === "verified");
     // If no MFA, then it prompts this error message.
     if (!verifiedTOTP)   {
@@ -93,7 +93,7 @@ async function submitMFA(e) {
 }
 
     // Verify the 6-digit MFA code
-    const {error: verifyErr} = await supabase.auth.mfa.verify({factorId: mfaFactorId, code: mfaCode.trim(),});
+    const {error: verifyErr} = await supabase.auth.mfa.challengeAndVerify({factorId: mfaFactorId, code: mfaCode.trim(),});
     if (verifyErr) {
       setMfaError(verifyErr.message || "Invalid code");
       return;
@@ -103,7 +103,7 @@ async function submitMFA(e) {
     setMfaOpen(false);
     setMfaCode("");
     // Basic code, replace with real redirect.
-    //router.replace("/admin");
+    router.replace("/dashboard");
   }
 
   return (
@@ -168,17 +168,6 @@ async function submitMFA(e) {
                 Forgot password?
               </a>
             </div>
-
-            {/* Verify code (half width, aligned left) 
-                TEMPORARILY REMOVED, may be fully removed later*/}
-            {/* <div>
-              <input
-                type="text"
-                name="verifyCode"
-                placeholder="Enter verify code"
-                className="w-1/2 border border-black rounded-sm px-3 py-2"
-              />
-            </div> */}
 
             {/* Sign in button. */}
             <button
