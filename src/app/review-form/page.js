@@ -8,6 +8,15 @@ export default function ReviewFormPage() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   );
 
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const [file, setFile] = useState(null);
+  const [photoUrl, setPhotoUrl] = useState(null);
+  const [uploading, setUploading] = useState(false);
+
+  const [hover, setHover] = useState(null);
+
   const [formData, setFormData] = useState({
     name: "",
     emailOrPhone: "",
@@ -26,6 +35,7 @@ export default function ReviewFormPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
     const { data, error } = await supabase.from("reviews").insert([
       {
         name: formData.name,
@@ -33,6 +43,7 @@ export default function ReviewFormPage() {
         reviewTitle: formData.reviewTitle,
         rating: formData.rating,
         reviewText: formData.reviewText,
+        photoUrl: photoUrl || null, 
       },
     ]);
 
@@ -57,10 +68,30 @@ export default function ReviewFormPage() {
     }, 10000);
   };
 
-  const [successMessage, setSuccessMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const handlePhotoUpload = async () => {
+    if (!file) return;
+    setUploading(true);
 
-  const [hover, setHover] = useState(null);
+    const fileExt = file.name.split(".").pop();
+    const fileName = `${Date.now()}.${fileExt}`;
+
+    const { data, error } = await supabase.storage
+      .from("reviews-photos")
+      .upload(fileName, file);
+
+    if (error) {
+      console.error("Upload error:", error);
+      setErrorMessage("Photo upload failed. Please try again.");
+    }
+
+    const { data: publicData } = supabase.storage
+      .from("reviews-photos")
+      .getPublicUrl(fileName);
+    setPhotoUrl(publicData.publicUrl);
+    setUploading(false);
+  };
+
+  
 
   return (
     <main className="min-h-screen bg-white text-black">
@@ -152,13 +183,35 @@ export default function ReviewFormPage() {
               />
             </div>
 
-            <div className="mt-8">
-              <button
-                type="button"
-                className="w-1/3 bg-slate-300 text-black font-bold py-2 hover:bg-slate-400"
-              >
-                Upload a Photo
-              </button>
+            <div className="mb-4">
+              <label className="block text-med mb-1">Upload a Photo</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setFile(e.target.files[0])}
+                  className="border border-black px-3 py-2"
+                />
+                <button
+                  type="button"
+                  onClick={handlePhotoUpload}
+                  disabled={!file || uploading}
+                  className="bg-slate-300 text-black font-bold px-4 py-2 hover:bg-slate-400 disabled:opacity-50"
+                >
+                  {uploading ? "Uploading..." : "Upload Photo"}
+                </button>
+              </div>
+
+              {photoUrl && (
+                <div className="mt-2">
+                  <img
+                    src={photoUrl}
+                    alt="Uploaded preview"
+                    className="w-32 h-32 object-cover border"
+                  />
+                  <p className="text-sm text-green-700 mt-1"> Uploaded successfully!</p>
+                </div>
+              )}
             </div>
 
             <div className="border-t border-neutral-300 p-6 md:p-8">
