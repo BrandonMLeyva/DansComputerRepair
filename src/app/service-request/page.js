@@ -1,9 +1,10 @@
 "use client";
 import { useState } from 'react';
 import styles from './page.module.css';
+import { supabase } from '../../lib/supabase/client.js'; // This allows us to communicate with the Supabase database.
 
 export default function ServiceRequest() {
-  //Initial values are empty.
+  // This state object holds the values of all form inputs. Initial values are empty
   const [form, setForm] = useState({
     name: '',
     phone: '',
@@ -18,27 +19,67 @@ export default function ServiceRequest() {
   // status tracks the submission lifecycle: null | 'sending' | 'submitted' | 'error'
   const [status, setStatus] = useState(null);
 
-  // update: generic onChange handler for inputs. It expects the input's
+  // A generic onChange handler to update the form state for any input.
   function update(e) {
     const { name, value } = e.target;
     setForm((s) => ({ ...s, [name]: value }));
   }
 
-  // handleSubmit: send the form JSON to the API. Prevents the default form
-  // submission behavior.
+  // Replace the handleSubmit function's logic.
+  // This new async function sends the form data to Supabase table.
   async function handleSubmit(e) {
+    // Prevent the default browser behavior of refreshing the page on form submission.
     e.preventDefault();
+    // Set status to 'sending' to provide user feedback.
     setStatus('sending');
+
+    // Check if at least one of the device fields is filled
+    if (!form.deviceSelect && !form.deviceText) {
+      setStatus("error");
+      alert("Please select a device or type your device in the 'Or specify' field.");
+      return; // Stop the submission
+    }
+
     try {
-      await new Promise((res) => setTimeout(res, 400));
+      // Prepare the data for insertion.
+      // The keys on the left (e.g., 'customer_name') MUST match the column names in your Supabase 'service_requests' table.
+      // The values on the right (e.g., form.name) are from the user's input.
+      const submissionData = {
+        customer_name: form.name,
+        phone_number: form.phone,
+        email: form.email,
+        // If a device is selected from the dropdown, use it. Otherwise, use the text input.
+        device_type: form.deviceSelect || form.deviceText,
+        problem_start_date: form.started,
+        problem_cause_idea: form.idea,
+        additional_questions: form.questions,
+      };
+
+      // Send the data to the 'service_requests' table in Supabase.
+      const { data, error } = await supabase.from('service_requests').insert([submissionData]);
+
+      // If Supabase returns an error, throw it to be caught by the 'catch' block.
+      if (error) {
+        throw error;
+      }
+
+      // If the submission is successful:
+      // Set status to 'submitted' for user feedback.
       setStatus('submitted');
+      // Reset the form fields to be empty for the next submission.
       setForm({ name: '', phone: '', email: '', deviceSelect: '', deviceText: '', started: '', idea: '', questions: '' });
+
     } catch (err) {
+      // If any error occurs during the 'try' block:
+      // Set status to 'error' for user feedback.
       setStatus('error');
-      console.error(err);
+      // Log the detailed error message to the browser's console for debugging.
+      console.error('Error submitting to Supabase:', err);
     }
   }
 
+  // The JSX for the form remains mostly the same.
+  // only added a 'disabled' attribute to the button to prevent multiple submissions.
   return (
     <div className={styles.pageWrap}>
       <h1 className={styles.title}>Service Request Form</h1>
@@ -50,18 +91,17 @@ export default function ServiceRequest() {
         <div className={styles.grid3}>
           <label className={styles.field}>
             <span className={styles.label}>Name</span>
-            {/* Input binds value to form.name and updates state on change */}
-            <input name="name" value={form.name} onChange={update} className={styles.input} />
+            <input name="name" value={form.name} onChange={update} className={styles.input} required />
           </label>
 
           <label className={styles.field}>
             <span className={styles.label}>Phone number</span>
-            <input name="phone" value={form.phone} onChange={update} className={styles.input} />
+            <input name="phone" value={form.phone} onChange={update} className={styles.input} type="tel" required/>
           </label>
 
           <label className={styles.field}>
             <span className={styles.label}>Email address</span>
-            <input name="email" value={form.email} onChange={update} className={styles.input} />
+            <input name="email" value={form.email} onChange={update} className={styles.input} type="email" required />
           </label>
         </div>
 
@@ -70,8 +110,7 @@ export default function ServiceRequest() {
         <div className={styles.grid2}>
           <label className={styles.field}>
             <span className={styles.label}>Device</span>
-            {/* A select control; value maps to form.deviceSelect */}
-            <select name="deviceSelect" value={form.deviceSelect} onChange={update} className={styles.input}>
+            <select name="deviceSelect" value={form.deviceSelect} onChange={update} className={styles.input} disabled={!!form.deviceText}>
               <option value="">Select a device here</option>
               <option>Desktop</option>
               <option>Laptop</option>
@@ -82,8 +121,7 @@ export default function ServiceRequest() {
 
           <label className={styles.field}>
             <span className={styles.label}>Or specify</span>
-            {/* Freeform device text */}
-            <input name="deviceText" placeholder="Type your device here" value={form.deviceText} onChange={update} className={styles.input} />
+            <input name="deviceText" placeholder="Type your device here" value={form.deviceText} onChange={update} className={styles.input} disabled={!!form.deviceSelect}/>
           </label>
         </div>
 
@@ -92,7 +130,7 @@ export default function ServiceRequest() {
         <div className={styles.grid2}>
           <label className={styles.field}>
             <span className={styles.label}>When did the problem start?</span>
-            <input name="started" value={form.started} onChange={update} className={styles.input} />
+            <input name="started" value={form.started} onChange={update} className={styles.input} type="date"/>
           </label>
 
           <label className={styles.field}>
@@ -109,13 +147,15 @@ export default function ServiceRequest() {
 
         {/* Submit button area */}
         <div className={styles.actions}>
-          <button type="submit" className={styles.submitBtn}>Submit</button>
+          {/*Improve user experience on the submit button. */}
+          <button type="submit" className={styles.submitBtn} disabled={status === 'sending'}>
+            {status === 'sending' ? 'Submitting...' : 'Submit'}
+          </button>
         </div>
 
         {/* Status messages shown based on the `status` state */}
-        {status === 'sending' && <p className={styles.message}>Sending...</p>}
         {status === 'submitted' && <p className={styles.success}>Submitted — admin will be notified.</p>}
-        {status === 'error' && <p className={styles.error}>Error sending form. Check console.</p>}
+        {status === 'error' && <p className={styles.error}>Error sending form.</p>}
       </form>
     </div>
   );
