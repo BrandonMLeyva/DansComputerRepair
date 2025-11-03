@@ -1,6 +1,7 @@
 import React from 'react'
 import dayjs from 'dayjs';
 import { createClient } from '@supabase/supabase-js';
+import OrdersPanel from './OrdersPanel';
 
 
 export const metadata = {
@@ -9,11 +10,24 @@ export const metadata = {
 }
 //change the default to include async
 export default async function DashboardPage() {
-  // trying to connec to supabase
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  );
+  // Ensure env vars exist to avoid 500 during local testing
+  const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const SUPABASE_ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!SUPABASE_URL || !SUPABASE_ANON) {
+    return (
+      <div className="p-8">
+        <h1 className="text-xl font-semibold">Dashboard</h1>
+        <p className="mt-4 text-red-700">
+          Missing Supabase environment variables. Set <code>NEXT_PUBLIC_SUPABASE_URL</code> and{' '}
+          <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> in <code>.env.local</code>, then restart the dev server.
+        </p>
+      </div>
+    );
+  }
+
+  // connect to supabase once env is present
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
   //Fetching data for the whole information Admin Data
   const { data: rows, error } = await supabase.from('Admin_Page_Order').select('*');
    if (error) console.error('Supabase error:', error);
@@ -30,102 +44,55 @@ export default async function DashboardPage() {
   const currentMonth = dayjs().format('MMM');
   console.log('Rows:', rows);
 
-  // small inline status badge components
-  function StatusBadge({ status }) {
-    const key = String(status || '').toLowerCase();
-    const styles = {
-      display: 'inline-block',
-      padding: '6px 10px',
-      borderRadius: 6,
-      fontWeight: 600,
-    }
-
-    if (key.includes('pending')) {
-      return <span style={{ ...styles, background: '#e5e7eb', color: '#111' }}>{status}</span>
-    }
-
-    if (key.includes('in progress') || key.includes('in-progress') || key.includes('progress')) {
-      return <span style={{ ...styles, background: '#bbf7d0', color: '#064e3b' }}>{status}</span>
-    }
-
-    // default / completed
-    return <span style={{ ...styles, background: '#bfdbfe', color: '#0b3d91' }}>{status}</span>
-  }
-
   return (
-    <div style={{display: 'flex', minHeight: '100vh', fontFamily: 'Inter, system-ui, Arial'}}>
-      <aside style={{width: 220, padding: '2rem 1rem', background: '#D9D9D9', color: '#000000ff'}}>
-        <h2 style={{margin: 0, marginBottom: '1.5rem', fontSize: '1.25rem'}}>Dashboard</h2>
-        <nav aria-label="Sidebar" style={{display: 'flex', flexDirection: 'column', gap: '0.75rem'}}>
-          <button style={{background: 'transparent', border: 'none', color: 'inherit', textAlign: 'left', padding: 0, cursor: 'pointer'}}>Orders</button>
-          <button style={{background: 'transparent', border: 'none', color: 'inherit', textAlign: 'left', padding: 0, cursor: 'pointer'}}>Customer</button>
-          <button style={{background: 'transparent', border: 'none', color: 'inherit', textAlign: 'left', padding: 0, cursor: 'pointer'}}>Reports</button>
-          <button style={{background: 'transparent', border: 'none', color: 'inherit', textAlign: 'left', padding: 0, cursor: 'pointer'}}>Settings</button>
+    <div className="flex min-h-screen">
+      <aside className="w-[220px] py-8 px-4 bg-gray-300 text-black">
+        <h2 className="mb-6 text-xl">Dashboard</h2>
+        <nav aria-label="Sidebar" className="flex flex-col gap-3">
+          <button className="text-left hover:underline">Orders</button>
+          <button className="text-left hover:underline">Customer</button>
+          <button className="text-left hover:underline">Reports</button>
+          <button className="text-left hover:underline">Settings</button>
         </nav>
       </aside>
 
-      <main style={{flex: 1, padding: '2rem'}}>
-        <h1 style={{marginBottom: '1rem', fontSize: '2rem', fontWeight: 600}}>Dashboard</h1>
+      <main className="flex-1 p-8">
+        <h1 className="mb-4 text-3xl font-semibold">Dashboard</h1>
 
-        <section style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem'}}>
-          <div style={{padding: '1rem', borderRadius: 0, background: '#D9D9D9', border: '1px solid #000', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
-            <h3 style={{margin: 0, color: '#111'}}>Total Orders</h3>
-            <p style={{fontSize: '1.5rem', margin: '0.5rem 0', color:'#111'}}>{totalOrder}</p>
+        <section className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
+          <div className="p-4 bg-gray-300 border border-black flex flex-col items-center justify-center">
+            <h3 className="text-gray-900">Total Orders</h3>
+            <p className="text-2xl my-2 text-gray-900">{totalOrder}</p>
           </div>
 
-          <div style={{padding: '1rem', borderRadius: 0, background: '#D9D9D9', border: '1px solid #000', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
-            <h3 style={{margin: 0, color: '#111'}}>Ongoing</h3>
-            <p style={{fontSize: '1.5rem', margin: '0.5rem 0', color: '#111'}}>{ongoingOrders}</p>
-            <p style={{margin: 0, color: '#111'}}>Open support tickets</p>
+          <div className="p-4 bg-gray-300 border border-black flex flex-col items-center justify-center">
+            <h3 className="text-gray-900">Ongoing</h3>
+            <p className="text-2xl my-2 text-gray-900">{ongoingOrders}</p>
+            <p className="text-gray-900">Open support tickets</p>
           </div>
 
-          <div style={{padding: '1rem', borderRadius: 0, background: '#D9D9D9', border: '1px solid #000', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
-            <h3 style={{margin: 0, color: '#111'}}>Completed</h3>
-            <p style={{fontSize: '1.5rem', margin: '0.5rem 0', color: '#111'}}>{completedOrders}</p>
-            <p style={{margin: 0, color: '#111'}}>jobs</p>
+          <div className="p-4 bg-gray-300 border border-black flex flex-col items-center justify-center">
+            <h3 className="text-gray-900">Completed</h3>
+            <p className="text-2xl my-2 text-gray-900">{completedOrders}</p>
+            <p className="text-gray-900">jobs</p>
           </div>
 
-          <div style={{padding: '1rem', borderRadius: 0, background: '#D9D9D9', border: '1px solid #000', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
-            <h3 style={{margin: 0, color: '#111'}}>Month</h3>
-            <p style={{fontSize: '1.5rem', margin: '0.5rem 0', color: '#111'}}>{currentMonth}</p>
+          <div className="p-4 bg-gray-300 border border-black flex flex-col items-center justify-center">
+            <h3 className="text-gray-900">Month</h3>
+            <p className="text-2xl my-2 text-gray-900">{currentMonth}</p>
           </div>
 
         </section>
 
-        <section style={{marginTop: '2rem'}}>
-          <h2 style={{fontSize: '1.5rem', fontWeight: 600 }}>Orders</h2>
-          <div style={{color: '#111', background: '#f3f4f6', padding: '1rem', borderRadius: 0}}>
-            <div style={{maxHeight: '400px',overflowY: 'auto'}}>
-              <table style={{width: '100%', borderCollapse: 'collapse'}}>
-              <thead>
-                <tr style={{textAlign: 'left', borderBottom: '2px solid #e5e7eb'}}>
-                  <th style={{padding: '0.5rem 0'}}>ID</th>
-                  <th style={{padding: '0.5rem 0'}}>Customer</th>
-                  <th style={{padding: '0.5rem 0'}}>Status</th>
-                  <th style={{padding: '0.5rem 0'}}>Date</th>
-                  <th style={{padding: '0.5rem 0'}}>Notes</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows?.map((row, index) => (
-                  <tr key={index} >
-                    <td style={{color: '#111',padding: '0.75rem 0'}}>{row.ID}</td>
-                    <td style={{color: '#111',padding: '0.75rem 0'}}>{row.Customer}</td>
-                    <td style={{color: '#111',padding: '0.75rem 0'}}><StatusBadge status={row.Status} /></td>
-                    <td style={{color: '#111',padding: '0.75rem 0'}}>{dayjs(row.Dates).format('MMM DD YYYY')}</td>
-                    <td style={{color: '#111',padding: '0.75rem 0'}}>{row.Notes}</td>
-                  </tr>
-                ))}
-              </tbody>
-              </table>
-            </div>
-          </div>
+        <section className="mt-8">
+          <h2 className="text-xl font-semibold">Orders</h2>
+          <OrdersPanel rows={rows ?? []} />
         </section>
-        <div style={{marginTop: '1.25rem'}}>
-            <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: 600}}>Notifications</h3>
-            <p style={{marginTop: '0.5rem', color: '#6b7280'}}>Sara needs to follow up on the battery replacement.</p>
-            <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: 600}}>Reminders</h3>
-            <p style={{marginTop: '0.5rem', color: '#6b7280'}}>Mark needs to check the status of the screen repair</p>
+        <div className="mt-5">
+            <h3 className="text-xl font-semibold">Notifications</h3>
+            <p className="mt-2 text-gray-500">Sara needs to follow up on the battery replacement.</p>
+            <h3 className="text-xl font-semibold">Reminders</h3>
+            <p className="mt-2 text-gray-500">Mark needs to check the status of the screen repair</p>
         </div>
       </main>
     </div>
