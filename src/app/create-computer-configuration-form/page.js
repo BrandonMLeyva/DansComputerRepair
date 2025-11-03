@@ -1,9 +1,196 @@
+"use client"
 
+import { useState, useEffect } from 'react'
 
 export default function CreateComputerConfigurationForm() {
+    const [status, setStatus] = useState(null)
+    const [cpus, setCpus] = useState([])
+    const [gpus, setGpus] = useState([])
+    const [motherboards, setMotherboards] = useState([])
+    const [memories, setMemories] = useState([])
+    const [storages, setStorages] = useState([])
+    const [psus, setPsus] = useState([])
+    const [casesList, setCasesList] = useState([])
+    const [coolings, setCoolings] = useState([])
+    const [operatingSystems, setOperatingSystems] = useState([])
+    const [networkings, setNetworkings] = useState([])
+    // track current selections so we can compute totals client-side
+    const [selectedCpu, setSelectedCpu] = useState('')
+    const [selectedGpu, setSelectedGpu] = useState('')
+    const [selectedMotherboard, setSelectedMotherboard] = useState('')
+    const [selectedMemory, setSelectedMemory] = useState('')
+    const [selectedStorage, setSelectedStorage] = useState('')
+    const [selectedPsu, setSelectedPsu] = useState('')
+    const [selectedCase, setSelectedCase] = useState('')
+    const [selectedCooling, setSelectedCooling] = useState('')
+    const [selectedOS, setSelectedOS] = useState('')
+    const [selectedNetworking, setSelectedNetworking] = useState('')
+    const [totalPrice, setTotalPrice] = useState(0)
+
+    useEffect(() => {
+        const types = [
+            'cpu',
+            'gpu',
+            'motherboard',
+            'memory',
+            'storage',
+            'psu',
+            'case',
+            'cooling',
+            'operating_system',
+            'networking',
+        ]
+
+        const setters = {
+            cpu: setCpus,
+            gpu: setGpus,
+            motherboard: setMotherboards,
+            memory: setMemories,
+            storage: setStorages,
+            psu: setPsus,
+            case: setCasesList,
+            cooling: setCoolings,
+            operating_system: setOperatingSystems,
+            networking: setNetworkings,
+        }
+
+        async function fetchAll() {
+            await Promise.all(types.map(async (t) => {
+                try {
+                    const res = await fetch(`/api/options?type=${encodeURIComponent(t)}`)
+                    if (!res.ok) return setters[t]([])
+                    const json = await res.json()
+                    setters[t](json.data || [])
+                } catch (err) {
+                    console.error('Error fetching options', t, err)
+                    setters[t]([])
+                }
+            }))
+        }
+
+        fetchAll()
+    }, [])
+
+    // make select placeholder option appear lighter; when user chooses a real option
+    // we'll switch the select text color to dark so the real choice is more visible.
+    function handleSelectChange(e) {
+        const el = e.target
+        if (!el) return
+        if (el.value === '') {
+            el.classList.add('text-gray-400')
+            el.classList.remove('text-black')
+        } else {
+            el.classList.remove('text-gray-400')
+            el.classList.add('text-black')
+        }
+
+        // update selection state for total calculations
+        const name = el.name
+        const val = el.value
+        switch (name) {
+            case 'cpu': setSelectedCpu(val); break
+            case 'gpu': setSelectedGpu(val); break
+            case 'motherboard': setSelectedMotherboard(val); break
+            case 'memory': setSelectedMemory(val); break
+            case 'storage': setSelectedStorage(val); break
+            case 'psu': setSelectedPsu(val); break
+            case 'case': setSelectedCase(val); break
+            case 'cooling': setSelectedCooling(val); break
+            case 'operatingSystem': setSelectedOS(val); break
+            case 'networking': setSelectedNetworking(val); break
+            default: break
+        }
+    }
+
+    function formatPrice(v) {
+        if (v === undefined || v === null || v === '') return ''
+        const n = Number(v)
+        if (Number.isNaN(n)) return String(v)
+        return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n)
+    }
+
+    function findPrice(list, selectedVal) {
+        if (!selectedVal || !Array.isArray(list)) return 0
+        const found = list.find((it) => {
+            const val = (it.value ?? it.name)
+            if (val === selectedVal) return true
+            // also allow selecting by id (stringified)
+            if (String(it.id) === String(selectedVal)) return true
+            return false
+        })
+        if (!found) return 0
+        const p = found.price ?? found.price_usd ?? found.cost ?? 0
+        const n = Number(p)
+        return Number.isNaN(n) ? 0 : n
+    }
+
+    // recompute total when selections or option lists change
+    useEffect(() => {
+        const sum = (
+            findPrice(cpus, selectedCpu) +
+            findPrice(gpus, selectedGpu) +
+            findPrice(motherboards, selectedMotherboard) +
+            findPrice(memories, selectedMemory) +
+            findPrice(storages, selectedStorage) +
+            findPrice(psus, selectedPsu) +
+            findPrice(casesList, selectedCase) +
+            findPrice(coolings, selectedCooling) +
+            findPrice(operatingSystems, selectedOS) +
+            findPrice(networkings, selectedNetworking)
+        )
+        setTotalPrice(Number(sum.toFixed(2)))
+    }, [selectedCpu, selectedGpu, selectedMotherboard, selectedMemory, selectedStorage, selectedPsu, selectedCase, selectedCooling, selectedOS, selectedNetworking, cpus, gpus, motherboards, memories, storages, psus, casesList, coolings, operatingSystems, networkings])
+
+    async function handleSubmit(e) {
+     
+        e.preventDefault()
+
+        const form = e.currentTarget
+        setStatus('sending')
+
+        const fd = new FormData(form)
+        const payload = {
+            name: fd.get('Name') || null,
+            phone: fd.get('Phone number') || null,
+            email: fd.get('Email address') || null,
+            budgetRange: fd.get('Budget Range') || null,
+            intendedUse: fd.get('Intended Use') || null,
+            cpu: fd.get('cpu') || null,
+            gpu: fd.get('gpu') || null,
+            motherboard: fd.get('motherboard') || null,
+            memory: fd.get('memory') || null,
+            storage: fd.get('storage') || null,
+            psu: fd.get('psu') || null,
+            case: fd.get('case') || null,
+            // Optional additional options
+            cooling: fd.get('cooling') || null,
+            operatingSystem: fd.get('operatingSystem') || null,
+            networking: fd.get('networking') || null,
+            otherRequests: (fd.get('otherRequests') ? String(fd.get('otherRequests')).trim() : null),
+        }
+
+        // debug: log payload so we can inspect in browser DevTools before sending
+        console.log('Submitting configuration payload:', payload)
+
+        try {
+            const res = await fetch('/api/config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            })
+
+            if (!res.ok) throw new Error(await res.text())
+            setStatus('submitted')
+            if (form && typeof form.reset === 'function') form.reset()
+        } catch (err) {
+            console.error(err)
+            setStatus('error')
+        }
+    }
+
     return (
         <main className="min-h-screen bg-white text-black">
-                <form className="mx-auto max-w-3xl px-12,py-12">
+                <form onSubmit={handleSubmit} className="mx-auto max-w-3xl px-12,py-12">
                      <h1 className="text-3xl mb-6">Computer Configuration Form</h1>
                     {/* Boundary line wrapping two section and more in the future depended on it*/}
                     <div className="border border-neutral-300 bg-white, px-6 py-4">
@@ -38,81 +225,128 @@ export default function CreateComputerConfigurationForm() {
                         <div className="grid grid-cols-3 gaps-3 grid-flow-row, flex flex-col gap-6">
                             <div>
                                 <label className="block text-sm mb1" htmlFor="Processor (CPU)">1.Processor (CPU)</label>
-                                <select name="Processor (CPU)" className="w-55 border border-black  py-2">
+                                <select name="cpu" onChange={handleSelectChange} className="w-55 border border-neutral-300 py-2 bg-white text-gray-400">
                                     <option value="">Select a CPU</option>
-                                    <option value="Intel Core i9-13900K">Intel Core i9-13900K</option>
-                                    <option value="AMD Ryzen 9 7950X">AMD Ryzen 9 7950X</option>
-                                    <option value="Intel Core i7-13700K">Intel Core i7-13700K</option>
-                                    <option value="AMD Ryzen 7 7700X">AMD Ryzen 7 7700X</option>
-                                    <option value="Intel Core i5-13600K">Intel Core i5-13600K</option>
-                                    <option value="AMD Ryzen 5 7600X">AMD Ryzen 5 7600X</option>
+                                    {Array.isArray(cpus) && cpus.map((c) => (
+                                        <option key={c.id ?? c.name} value={c.value ?? c.name}>{c.name}{c.price != null ? ` \u2014 ${formatPrice(c.price)}` : ''}</option>
+                                    ))}
                                 </select>
                             </div>
 
                             <div>
                                 <label className="block test-sm mb1" htmlFor="Graphic Card">2.Graphic Card (GPU)</label>
-                                <select name="Graphic Card" className="w-55 border border-black  py-2">
+                                <select name="gpu" onChange={handleSelectChange} className="w-55 border border-neutral-300 py-2 bg-white text-gray-400">
                                     <option value="">Select a GPU</option>
-                                    <option value="NVIDIA GeForce RTX 4090">NVIDIA GeForce RTX 4090</option>
-                                    <option value="AMD Radeon RX 7900 XTX">AMD Radeon RX 7900 XTX</option>
-                                    <option value="NVIDIA GeForce RTX 4080">NVIDIA GeForce RTX 4080</option>
-                                    <option value="AMD Radeon RX 7800 XT">AMD Radeon RX 7800 XT</option>
-                                    <option value="NVIDIA GeForce RTX 4070 Ti">NVIDIA GeForce RTX 4070 Ti</option>
-                                    <option value="AMD Radeon RX 7700 XT">AMD Radeon RX 7700 XT</option>
+                                    {Array.isArray(gpus) && gpus.map((g) => (
+                                        <option key={g.id ?? g.name} value={g.value ?? g.name}>{g.name}{g.price != null ? ` \u2014 ${formatPrice(g.price)}` : ''}</option>
+                                    ))}
                                 </select>
                             </div>
                             <div>
                                 <label className="block test-sm mb1" htmlFor="Motherboard">3.Motherboard</label>
-                                <select name="Motherboard" className="w-55 border border-black py-2">
+                                <select name="motherboard" onChange={handleSelectChange} className="w-55 border border-neutral-300 py-2 bg-white text-gray-400">
                                     <option value="">Select a Motherboard</option>
-                                    <option value="ASUS ROG Strix Z790-E">ASUS ROG Strix Z790-E</option>
-                                    <option value="MSI MPG B650 Carbon WiFi">MSI MPG B650 Carbon WiFi</option>
-                                    <option value="Gigabyte Z790 AORUS Elite AX">Gigabyte Z790 AORUS Elite AX</option>
-                                    <option value="ASRock B650M Steel Legend">ASRock B650M Steel Legend</option>
+                                    {Array.isArray(motherboards) && motherboards.map((m) => (
+                                        <option key={m.id ?? m.name} value={m.value ?? m.name}>{m.name}{m.price != null ? ` \u2014 ${formatPrice(m.price)}` : ''}</option>
+                                    ))}
                                 </select>
                             </div>
                             <div>
                                 <label className="block test-sm mb1" htmlFor="Memory">4.Memory (RAM)</label>
-                                <select name="Memory" className="w-55 border border-black  py-2">
+                                <select name="memory" onChange={handleSelectChange} className="w-55 border border-neutral-300 py-2 bg-white text-gray-400">
                                     <option value="">Select RAM Size</option>
-                                    <option value="16GB (2x8GB) DDR5-6000">16GB (2x8GB) DDR5-6000</option>
-                                    <option value="32GB (2x16GB) DDR5-6000">32GB (2x16GB) DDR5-6000</option>
-                                    <option value="64GB (2x32GB) DDR5-6000">64GB (2x32GB) DDR5-6000</option>
+                                    {Array.isArray(memories) && memories.map((m) => (
+                                        <option key={m.id ?? m.name} value={m.value ?? m.name}>{m.name}{m.price != null ? ` \u2014 ${formatPrice(m.price)}` : ''}</option>
+                                    ))}
                                 </select>
                             </div>
                             <div>
                                 <label className="block test-sm mb1" htmlFor="Storage">5.Storage</label>
-                                <select name="Storage" className="w-55 border border-black py-2">
+                                <select name="storage" onChange={handleSelectChange} className="w-55 border border-neutral-300 py-2 bg-white text-gray-400">
                                     <option value="">Select Storage Option</option>
-                                    <option value="1TB NVMe SSD">1TB NVMe SSD</option>
-                                    <option value="2TB NVMe SSD">2TB NVMe SSD</option>
-                                    <option value="4TB NVMe SSD">4TB NVMe SSD</option>
-                                    <option value="1TB NVMe SSD + 2TB HDD">1TB NVMe SSD + 2TB HDD</option>
-                                    <option value="2TB NVMe SSD + 4TB HDD">2TB NVMe SSD + 4TB HDD</option>
+                                    {Array.isArray(storages) && storages.map((s) => (
+                                        <option key={s.id ?? s.name} value={s.value ?? s.name}>{s.name}{s.price != null ? ` \u2014 ${formatPrice(s.price)}` : ''}</option>
+                                    ))}
                                 </select>
                             </div>
                             <div>
                                 <label className="block test-sm mb1" htmlFor="Power Supply Unit (PSU)">6.Power Supply Unit (PSU)</label>
-                                <select name="Power Supply Unit (PSU)" className="w-55 border border-black py-2">
+                                <select name="psu" onChange={handleSelectChange} className="w-55 border border-neutral-300 py-2 bg-white text-gray-400">
                                     <option value="">Select a PSU</option>
-                                    <option value="650W 80+ Gold">650W 80+ Gold</option>
-                                    <option value="750W 80+ Gold">750W 80+ Gold</option>
-                                    <option value="850W 80+ Platinum">850W 80+ Platinum</option>
-                                    <option value="1000W 80+ Platinum">1000W 80+ Platinum</option>
+                                    {Array.isArray(psus) && psus.map((p) => (
+                                        <option key={p.id ?? p.name} value={p.value ?? p.name}>{p.name}{p.price != null ? ` \u2014 ${formatPrice(p.price)}` : ''}</option>
+                                    ))}
                                 </select>
                             </div>
                             <div>
                                 <label className="block test-sm mb1" htmlFor="Computer Case">7.Computer Case</label>
-                                <select name="Computer Case" className="w-55 border border-black  py-2">
+                                <select name="case" onChange={handleSelectChange} className="w-55 border border-neutral-300 py-2 bg-white text-gray-400">
                                     <option value="">Select a Case</option>
-                                    <option value="Mid-Tower Case with Tempered Glass">Mid-Tower Case with Tempered Glass</option>
-                                    <option value="Full-Tower Case with RGB Lighting">Full-Tower Case with RGB Lighting</option>
-                                    <option value="Compact Mini-ITX Case">Compact Mini-ITX Case</option>
+                                    {Array.isArray(casesList) && casesList.map((c) => (
+                                        <option key={c.id ?? c.name} value={c.value ?? c.name}>{c.name}{c.price != null ? ` \u2014 ${formatPrice(c.price)}` : ''}</option>
+                                    ))}
                                 </select>
                             </div>
                         </div>
                         {/* end of Section 2 list*/}
+                        {/* Section 3: Additional Options (optional) */}
+                        <h3 className="mt-6 mb-4">3. Additional Options</h3>
+                        <div className="grid grid-cols-3 gaps-3 grid-flow-row, flex flex-col gap-6">
+                            <div>
+                                <label className="block text-sm mb1" htmlFor="Cooling">1. Cooling</label>
+                                <select name="cooling" onChange={handleSelectChange} className="w-55 border border-neutral-300 py-2 bg-white text-gray-400">
+                                    <option value="">Select Cooling Option</option>
+                                    {Array.isArray(coolings) && coolings.map((c) => (
+                                        <option key={c.id ?? c.name} value={c.value ?? c.name}>{c.name}{c.price != null ? ` \u2014 ${formatPrice(c.price)}` : ''}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block test-sm mb1" htmlFor="Operating System">2. Operating System</label>
+                                <select name="operatingSystem" onChange={handleSelectChange} className="w-55 border border-neutral-300 py-2 bg-white text-gray-400">
+                                    <option value="">Select an OS</option>
+                                    {Array.isArray(operatingSystems) && operatingSystems.map((o) => (
+                                        <option key={o.id ?? o.name} value={o.value ?? o.name}>{o.name}{o.price != null ? ` \u2014 ${formatPrice(o.price)}` : ''}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block test-sm mb1" htmlFor="Networking">3. Networking</label>
+                                <select name="networking" onChange={handleSelectChange} className="w-55 border border-neutral-300 py-2 bg-white text-gray-400">
+                                    <option value="">Select Networking Option</option>
+                                    {Array.isArray(networkings) && networkings.map((n) => (
+                                        <option key={n.id ?? n.name} value={n.value ?? n.name}>{n.name}{n.price != null ? ` \u2014 ${formatPrice(n.price)}` : ''}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* Section 4: Other requests / Questions */}
+                        <h3 className="mt-6 mb-2">4. Other request / Questions</h3>
+                        <div>
+                            <label className="sr-only" htmlFor="otherRequests">Other request / Questions</label>
+                            <textarea id="otherRequests" name="otherRequests" rows={6} placeholder="Additional info, special requests, or questions" onInput={handleSelectChange} className="w-full border border-neutral-300 px-3 py-2 placeholder-gray-400 bg-white text-gray-400"></textarea>
+                        </div>
                     </div>
+
+                    {/* submit area with total on the right */}
+                    <div className="mt-6 flex justify-between items-center">
+                        <div />
+                        <div className="flex items-center gap-4">
+                            <div className="text-right">
+                                <div className="text-sm text-neutral-600">Estimated total</div>
+                                <div className="text-xl font-semibold">{formatPrice(totalPrice)}</div>
+                            </div>
+                            <button type="submit" className="bg-green-600 text-white px-6 py-3 rounded-md">Submit Configuration</button>
+                        </div>
+                    </div>
+
+                    {/* status messages */}
+                    {status === 'sending' && <p className="mt-4 text-center text-sm">Sending…</p>}
+                    {status === 'submitted' && <p className="mt-4 text-center text-sm text-green-600">Submitted — we'll contact you soon.</p>}
+                    {status === 'error' && <p className="mt-4 text-center text-sm text-red-600">Error sending — try again.</p>}
+
                 </form>
         </main>
     );
