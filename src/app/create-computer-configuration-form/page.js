@@ -14,18 +14,6 @@ export default function CreateComputerConfigurationForm() {
     const [coolings, setCoolings] = useState([])
     const [operatingSystems, setOperatingSystems] = useState([])
     const [networkings, setNetworkings] = useState([])
-    // track current selections so we can compute totals client-side
-    const [selectedCpu, setSelectedCpu] = useState('')
-    const [selectedGpu, setSelectedGpu] = useState('')
-    const [selectedMotherboard, setSelectedMotherboard] = useState('')
-    const [selectedMemory, setSelectedMemory] = useState('')
-    const [selectedStorage, setSelectedStorage] = useState('')
-    const [selectedPsu, setSelectedPsu] = useState('')
-    const [selectedCase, setSelectedCase] = useState('')
-    const [selectedCooling, setSelectedCooling] = useState('')
-    const [selectedOS, setSelectedOS] = useState('')
-    const [selectedNetworking, setSelectedNetworking] = useState('')
-    const [totalPrice, setTotalPrice] = useState(0)
 
     useEffect(() => {
         const types = [
@@ -83,23 +71,6 @@ export default function CreateComputerConfigurationForm() {
             el.classList.remove('text-gray-400')
             el.classList.add('text-black')
         }
-
-        // update selection state for total calculations
-        const name = el.name
-        const val = el.value
-        switch (name) {
-            case 'cpu': setSelectedCpu(val); break
-            case 'gpu': setSelectedGpu(val); break
-            case 'motherboard': setSelectedMotherboard(val); break
-            case 'memory': setSelectedMemory(val); break
-            case 'storage': setSelectedStorage(val); break
-            case 'psu': setSelectedPsu(val); break
-            case 'case': setSelectedCase(val); break
-            case 'cooling': setSelectedCooling(val); break
-            case 'operatingSystem': setSelectedOS(val); break
-            case 'networking': setSelectedNetworking(val); break
-            default: break
-        }
     }
 
     function formatPrice(v) {
@@ -108,38 +79,6 @@ export default function CreateComputerConfigurationForm() {
         if (Number.isNaN(n)) return String(v)
         return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n)
     }
-
-    function findPrice(list, selectedVal) {
-        if (!selectedVal || !Array.isArray(list)) return 0
-        const found = list.find((it) => {
-            const val = (it.value ?? it.name)
-            if (val === selectedVal) return true
-            // also allow selecting by id (stringified)
-            if (String(it.id) === String(selectedVal)) return true
-            return false
-        })
-        if (!found) return 0
-        const p = found.price ?? found.price_usd ?? found.cost ?? 0
-        const n = Number(p)
-        return Number.isNaN(n) ? 0 : n
-    }
-
-    // recompute total when selections or option lists change
-    useEffect(() => {
-        const sum = (
-            findPrice(cpus, selectedCpu) +
-            findPrice(gpus, selectedGpu) +
-            findPrice(motherboards, selectedMotherboard) +
-            findPrice(memories, selectedMemory) +
-            findPrice(storages, selectedStorage) +
-            findPrice(psus, selectedPsu) +
-            findPrice(casesList, selectedCase) +
-            findPrice(coolings, selectedCooling) +
-            findPrice(operatingSystems, selectedOS) +
-            findPrice(networkings, selectedNetworking)
-        )
-        setTotalPrice(Number(sum.toFixed(2)))
-    }, [selectedCpu, selectedGpu, selectedMotherboard, selectedMemory, selectedStorage, selectedPsu, selectedCase, selectedCooling, selectedOS, selectedNetworking, cpus, gpus, motherboards, memories, storages, psus, casesList, coolings, operatingSystems, networkings])
 
     async function handleSubmit(e) {
      
@@ -330,16 +269,9 @@ export default function CreateComputerConfigurationForm() {
                         </div>
                     </div>
 
-                    {/* submit area with total on the right */}
-                    <div className="mt-6 flex justify-between items-center">
-                        <div />
-                        <div className="flex items-center gap-4">
-                            <div className="text-right">
-                                <div className="text-sm text-neutral-600">Estimated total</div>
-                                <div className="text-xl font-semibold">{formatPrice(totalPrice)}</div>
-                            </div>
-                            <button type="submit" className="bg-green-600 text-white px-6 py-3 rounded-md">Submit Configuration</button>
-                        </div>
+                    {/* submit area */}
+                    <div className="mt-6 flex justify-end">
+                        <button type="submit" className="bg-green-600 text-white px-6 py-3 rounded-md">Submit Configuration</button>
                     </div>
 
                     {/* status messages */}
