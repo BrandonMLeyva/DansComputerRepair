@@ -10,24 +10,24 @@ body {
 
 .sidebar {
   width: 250px;
-  background-color: #b71c1c;
-  color: black;
+  background-color: #9B151C;
+  color: white;
   padding: 0;
   display: flex;
   flex-direction: column;
 }
 
 .sidebar-header {
-  background-color: #a01818;
+  background-color: #9B151C;
   padding: 20px;
   border-bottom: 2px solid #000;
 }
 
 .sidebar h2 {
   margin: 0;
-  color: black;
-  font-size: 28px;
-  font-weight: bold;
+  color: white;
+  font-size: 24px;
+  font-weight: normal;
   text-align: center;
 }
 
@@ -41,22 +41,22 @@ body {
   margin: 0;
   padding: 20px;
   cursor: pointer;
-  color: black;
-  font-size: 24px;
+  color: white;
+  font-size: 18px;
   text-align: center;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  font-weight: bold;
+  font-weight: normal;
 }
 
 .sidebar li:hover {
-  background-color: #a01818;
+  background-color: #7a1116;
 }
 
 .sidebar li.active {
   background-color: rgba(0, 0, 0, 0.15);
   padding: 20px;
   border-radius: 0;
-  font-weight: bold;
+  font-weight: normal;
 }
 
 .main {
@@ -75,13 +75,19 @@ body {
   color: black;
 }
 
+.parts-container {
+  background-color: #C4B581;
+  padding: 20px;
+  border: 2px solid #333;
+}
+
 .category {
-  background-color: #b71c1c;
+  background-color: transparent;
   color: black;
   padding: 10px;
   margin-bottom: 20px;
   min-height: 300px;
-  border: 2px solid #333;
+  border: none;
 }
 
 .category h3 {
@@ -103,7 +109,7 @@ body {
 
 .item {
   display: inline-block;
-  background-color: #dc4141;
+  background-color: #9B151C;
   color: white;
   margin: 5px;
   padding: 15px 20px;
@@ -120,7 +126,7 @@ body {
 
 .add-btn {
   display: inline-block;
-  background-color: #C4D4E4;
+  background-color: #C4B581;
   border: 2px solid #333;
   padding: 15px 25px;
   margin: 5px;
@@ -216,7 +222,7 @@ body {
 }
 
 .modal-content button {
-  background-color: #C4D4E4;
+  background-color: #C4B581;
   border: 1px solid #546e7a;
   padding: 12px 40px;
   cursor: pointer;

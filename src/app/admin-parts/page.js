@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
+import { motion } from "framer-motion";
 import "./PartsPage.css";
 
 export default function AdminPartsPage() {
@@ -221,28 +222,38 @@ export default function AdminPartsPage() {
       <div className="main">
         <h1>Parts</h1>
 
-        {categories.map((category) => (
-          <div className="category" key={category}>
-            <h3>{category}</h3>
-            <div className="items">
+        <div className="parts-container">
+          {categories.map((category) => (
+            <div className="category" key={category}>
+              <h3>{category}</h3>
+              <div className="items">
               {(parts[category] || []).map((item, index) => (
-                <div
+                <motion.div
                   key={item.id}
                   className="item"
                   onContextMenu={(e) => handleRightClick(category, index, e)}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   {item.name} {item.price ? `- $${item.price}` : ""}
-                </div>
+                </motion.div>
               ))}
-              <button
+              <motion.button
                 className="add-btn"
                 onClick={() => handleAddClick(category)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ duration: 0.2 }}
               >
                 Add
-              </button>
+              </motion.button>
             </div>
           </div>
         ))}
+        </div>
 
         {showModal && (
           <div className="modal">
@@ -267,7 +278,14 @@ export default function AdminPartsPage() {
                 onChange={(e) => setForm({ ...form, price: e.target.value })}
                 maxLength={15}
               />
-              <button onClick={handleConfirm}>Confirm</button>
+              <motion.button 
+                onClick={handleConfirm}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ duration: 0.2 }}
+              >
+                Confirm
+              </motion.button>
             </div>
           </div>
         )}
