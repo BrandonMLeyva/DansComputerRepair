@@ -53,7 +53,7 @@ export default function Header() {
             <li>
               <MotionButton
                 type="button"
-                onClick={() => handleNavigation("/about")}
+                onClick={() => handleNavigation("/products")}
                 whileHover={hover}
                 whileTap={tap}
                 className="rounded px-2 py-1 text-gray-700 hover:text-gray-900 hover:underline hover:bg-red-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
