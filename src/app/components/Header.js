@@ -15,7 +15,9 @@ export default function Header() {
     <header className="w-full border-b border-gray-200 bg-white">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 md:py-4">
         {/* Brand */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3"
+          onClick={() => handleNavigation("/")}
+        >
           <img
             src="/Danlogo.jpg"
             alt="Dan's Computer Repair Logo"
