@@ -44,7 +44,7 @@ export default function Header() {
                 onClick={() => handleNavigation("/")}
                 whileHover={hover}
                 whileTap={tap}
-                className="rounded px-2 py-1 text-gray-700 hover:text-gray-900 hover:underline hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
+                className="rounded px-2 py-1 text-gray-700 hover:text-gray-900 hover:underline hover:bg-red-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
               >
                 Home
               </MotionButton>
@@ -56,7 +56,7 @@ export default function Header() {
                 onClick={() => handleNavigation("/about")}
                 whileHover={hover}
                 whileTap={tap}
-                className="rounded px-2 py-1 text-gray-700 hover:text-gray-900 hover:underline hover:bg-purple-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
+                className="rounded px-2 py-1 text-gray-700 hover:text-gray-900 hover:underline hover:bg-red-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
               >
                 Products
               </MotionButton>
@@ -69,7 +69,7 @@ export default function Header() {
                 onClick={() => handleNavigation("/create-computer-configuration-form")}
                 whileHover={hover}
                 whileTap={tap}
-                className="rounded px-2 py-1 text-gray-700 hover:text-gray-900 hover:underline hover:bg-blue-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
+                className="rounded px-2 py-1 text-gray-700 hover:text-gray-900 hover:underline hover:bg-red-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
               >
                 Computer Building
               </MotionButton>
