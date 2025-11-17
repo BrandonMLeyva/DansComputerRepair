@@ -151,10 +151,10 @@ export default function OrdersPanel({ rows, updateStatus }) {
     });
 
     return sorted;
-  }, [rows, searchTerm, statusFilter, sortField]);
+  }, [rows, searchTerm, statusFilter, sortField, monthFilter]);
 
   return (
-    <div className="rounded-none bg-gray-100 p-4 text-gray-900">
+    <div className="rounded-lg bg-red-100 p-4 text-gray-900 shadow-sm hover:shadow-lg hover:border hover:border-pink-300">
       {/* Top controls: search + filter */}
       <div className="mb-4 flex flex-wrap items-center gap-4">
         {/* Search input */}
