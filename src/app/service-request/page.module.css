@@ -91,3 +91,12 @@
 .message { margin-top: 10px; }
 .success { margin-top: 10px; color: green; }
 .error { margin-top: 10px; color: #d00; }
+
+/* Styling for disabled input fields */
+.input:disabled {
+  background-color: #cdcccc;  /* Light gray background */
+  color: #7a7a7a;             /* Gray text color */
+  cursor: not-allowed;        /* Show "not allowed" cursor */
+  opacity: 0.6;               /* Make it slightly transparent */
+  border-color: #dddddd;      /* Lighter border */
+}

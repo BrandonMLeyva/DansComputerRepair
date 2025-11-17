@@ -42,12 +42,11 @@ async function handleSubmit(e) {
 
     // If already AAL2 verified, then routes you to /admin
     if (aalData?.currentLevel === "aal2") {
-       // Basic code, replace with real redirect.
-      router.replace("/admin");
+      router.replace("/dashboard");
       return;
     }
 
-    // If not AAl2 verified, then it will prompt TOTP factors?
+    // If not AAl2 verified, then check TOTP factors
     const {data: factors, error: listErr} = await supabase.auth.mfa.listFactors();
     if (listErr) {
       setError(listErr.message);
@@ -60,7 +59,12 @@ async function handleSubmit(e) {
     // If no MFA, then it prompts this error message.
     if (!verifiedTOTP)   {
       // Either send them to sign up page for MFA, or prompt them on the spot.
-      setError("User currently does not have a MFA setup. Please setup MFA before logging in.")
+      setError("User currently does not have a MFA setup. Redirecting user to setup MFA...")
+
+      setTimeout(() => {
+            router.replace("/init-mfa");
+        }, 3000);
+
       return;
     } 
 
@@ -143,7 +147,7 @@ async function submitMFA(e) {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-2.5 text-neutral-500 hover:text-black"
+                  className="absolute right-3 top-2.5 text-neutral-500 hover:text-black cursor-pointer"
                 >
                   {showPassword ? (
                     <EyeOff size={18} strokeWidth={1.5} />
@@ -154,8 +158,6 @@ async function submitMFA(e) {
               </div>
             </div>
 
-            {/* Show auth error and making the button react to when signing in
-                Currently always shows error, need to fix*/}
             {error && <div className="text-red-600 text-sm">{error}</div>}
 
             {/* Remember me + Forgot password */}
@@ -173,7 +175,7 @@ async function submitMFA(e) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#8fbd7e] hover:bg-[#6dab5c] text-white font-medium py-2 rounded-sm mt-2"
+              className="w-full bg-[#8fbd7e] hover:bg-[#6dab5c] text-white font-medium py-2 rounded-sm mt-2 cursor-pointer"
             >
               {loading ? "Loading..." : "Sign In"}
             </button>
@@ -184,7 +186,7 @@ async function submitMFA(e) {
             <span className="text-sm text-neutral-600">Or</span>
             <button
               type="button"
-              className="bg-[#7e9dbd] hover:bg-[#7e9dbd] text-white font-medium px-4 py-2 rounded-sm"
+              className="bg-[#7e9dbd] hover:bg-[#5d7b99] text-white font-medium px-4 py-2 rounded-sm cursor-pointer"
             >
               Sign up
             </button>
@@ -218,7 +220,7 @@ async function submitMFA(e) {
               <div className="flex items-center justify-end gap-2">
                 <button
                   type="button"
-                  className="px-3 py-2 border rounded-sm"
+                  className="px-3 py-2 border rounded-sm cursor-pointer"
                   onClick={async () => {
                     setMfaOpen(false);
                     setMfaCode("");
@@ -227,7 +229,7 @@ async function submitMFA(e) {
                 >
                   Cancel
                 </button>
-                <button type="submit" className="px-3 py-2 bg-black text-white rounded-sm">
+                <button type="submit" className="px-3 py-2 bg-black text-white rounded-sm cursor-pointer">
                   Verify
                 </button>
               </div>
