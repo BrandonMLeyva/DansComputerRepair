@@ -8,6 +8,7 @@ export default function Header() {
   const handleNavigation = (path) => router.push(path);
   const MotionButton = motion.button;
 
+  // Small interaction animations
   const hover = { scale: 1.05 };
   const tap = { scale: 0.95 };
 
@@ -62,11 +63,13 @@ export default function Header() {
               </MotionButton>
             </li>
 
-            {/* Computer Building button */}
+            {/* Computer Building */}
             <li>
               <MotionButton
                 type="button"
-                onClick={() => handleNavigation("/create-computer-configuration-form")}
+                onClick={() =>
+                  handleNavigation("/create-computer-configuration-form")
+                }
                 whileHover={hover}
                 whileTap={tap}
                 className="rounded px-2 py-1 text-gray-700 hover:text-gray-900 hover:underline hover:bg-red-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
@@ -75,7 +78,7 @@ export default function Header() {
               </MotionButton>
             </li>
 
-            {/* Service Request button */}
+            {/* Service Request */}
             <li>
               <MotionButton
                 type="button"
@@ -87,23 +90,8 @@ export default function Header() {
                 Service Request
               </MotionButton>
             </li>
-
-            <li>
-              <MotionButton
-                type="button"
-                onClick={() => handleNavigation("/admin-log-in")}
-                whileHover={hover}
-                whileTap={tap}
-                className="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-gray-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
-              >
-                Admin Login
-              </MotionButton>
-            </li>
           </ul>
         </nav>
-
-        {/* (Optional) Mobile trigger placeholder */}
-        <div className="md:hidden" />
       </div>
     </header>
   );

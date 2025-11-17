@@ -73,6 +73,16 @@ return (
       {/* --- Blank space for future content --- */}
       <section className="flex-grow flex items-center justify-center"></section>
 
+      {/* --- About Us Section --- */}
+      <section className="text-center pt-10 pb-6 px-6">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-4xl md:text-4xl font-bold text-slate-900 mb-4">About Us</h2>
+          <p className="text-lg text-gray-700 leading-relaxed">
+            At Dan's Computer Repair, we provide fast, reliable, and affordable solutions for all your tech needs right here in the Sacramento area. From fixing slow computers to custom PC builds and hardware upgrades, we are proud to serve our local community with honest service you can trust.
+          </p>
+        </div>
+      </section>
+
       {/* Services Section */}
       <Services />
 
