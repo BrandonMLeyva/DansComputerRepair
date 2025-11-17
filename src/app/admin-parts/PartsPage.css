@@ -1,0 +1,255 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.dashboard {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 250px;
+  background-color: #9B151C;
+  color: white;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  background-color: #9B151C;
+  padding: 20px;
+  border-bottom: 2px solid #000;
+}
+
+.sidebar h2 {
+  margin: 0;
+  color: white;
+  font-size: 24px;
+  font-weight: normal;
+  text-align: center;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar li {
+  margin: 0;
+  padding: 20px;
+  cursor: pointer;
+  color: white;
+  font-size: 18px;
+  text-align: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  font-weight: normal;
+}
+
+.sidebar li:hover {
+  background-color: #7a1116;
+}
+
+.sidebar li.active {
+  background-color: rgba(0, 0, 0, 0.15);
+  padding: 20px;
+  border-radius: 0;
+  font-weight: normal;
+}
+
+.main {
+  flex: 1;
+  padding: 20px;
+  background-color: #ffffff;
+  overflow-y: auto;
+  max-height: 100vh;
+}
+
+.main h1 {
+  font-size: 48px;
+  font-weight: bold;
+  margin-top: 0;
+  margin-bottom: 30px;
+  color: black;
+}
+
+.parts-container {
+  background-color: #C4B581;
+  padding: 20px;
+  border: 2px solid #333;
+}
+
+.category {
+  background-color: transparent;
+  color: black;
+  padding: 10px;
+  margin-bottom: 20px;
+  min-height: 300px;
+  border: none;
+}
+
+.category h3 {
+  color: black;
+  margin: 0 0 10px 0;
+  font-weight: bold;
+}
+
+.items {
+  background-color: white;
+  padding: 15px;
+  color: black;
+  border: 2px solid #333;
+  min-height: 250px;
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.item {
+  display: inline-block;
+  background-color: #9B151C;
+  color: white;
+  margin: 5px;
+  padding: 15px 20px;
+  border-radius: 3px;
+  cursor: pointer;
+  border: 2px solid #333;
+  font-size: 14px;
+  font-weight: 500;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.add-btn {
+  display: inline-block;
+  background-color: #C4B581;
+  border: 2px solid #333;
+  padding: 15px 25px;
+  margin: 5px;
+  cursor: pointer;
+  border-radius: 3px;
+  font-size: 14px;
+  font-weight: 500;
+  vertical-align: top;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #BECFD3;
+  padding: 30px;
+  border-radius: 12px;
+  width: 600px;
+  position: relative;
+  border: 3px solid #546e7a;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 25px;
+  gap: 20px;
+  position: relative;
+}
+
+.modal-content h3 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: normal;
+  flex: 1;
+  text-align: center;
+}
+
+.close-btn {
+  background: #e8eaf6;
+  border: 1px solid #999;
+  font-size: 20px;
+  cursor: pointer;
+  color: #000;
+  width: 60px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+  border-radius: 4px;
+  flex-shrink: 0;
+  position: absolute;
+  right: 0;
+  top: -30px;
+}
+
+.close-btn:hover {
+  background: #d1d5e8;
+  color: #d32f2f;
+}
+
+.modal-content input {
+  width: 100%;
+  padding: 15px;
+  margin: 10px 0;
+  border: 3px solid #546e7a;
+  border-radius: 6px;
+  box-sizing: border-box;
+  background-color: white;
+  font-size: 16px;
+}
+
+.modal-content input::placeholder {
+  color: #999;
+}
+
+.modal-content input:disabled {
+  background-color: #f0f0f0;
+  cursor: not-allowed;
+}
+
+.modal-content button {
+  background-color: #C4B581;
+  border: 1px solid #546e7a;
+  padding: 12px 40px;
+  cursor: pointer;
+  width: auto;
+  border-radius: 4px;
+  margin: 20px auto 0;
+  display: block;
+  font-size: 16px;
+}
+
+.context-menu {
+  position: absolute;
+  background: #BECFD3;
+  border: 1px solid #999;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+}
+
+.context-menu button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 5px;
+  text-align: left;
+}
+
+.context-menu button:hover {
+  background: #a8b8bc;
+}
