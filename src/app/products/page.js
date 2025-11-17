@@ -5,12 +5,36 @@ export const metadata = {
 
 export default function ProductsPage() {
   const services = [
-    "PC and Mac diagnostics",
-    "Virus and malware removal",
-    "Hardware upgrades (RAM, SSD, GPU)",
-    "Data backup and recovery",
-    "Network setup and troubleshooting",
-    "Custom PC builds",
+    {
+      title: "PC and Mac diagnostics",
+      description:
+        "Full hardware and software checks to pinpoint slowdowns, crashes, or boot issues.",
+    },
+    {
+      title: "Virus and malware removal",
+      description:
+        "Deep scans and cleanup with security hardening so infections don’t return.",
+    },
+    {
+      title: "Hardware upgrades (RAM, SSD, GPU)",
+      description:
+        "Performance boosts with quality parts, installed and tested for stability.",
+    },
+    {
+      title: "Data backup and recovery",
+      description:
+        "Recover lost files when possible and set up reliable backups for peace of mind.",
+    },
+    {
+      title: "Network setup and troubleshooting",
+      description:
+        "Wi-Fi optimization, printer sharing, and resolving connectivity or speed issues.",
+    },
+    {
+      title: "Custom PC builds",
+      description:
+        "Personalized builds for gaming, creative work, or business, tuned for your budget.",
+    },
   ];
 
   const steps = [
@@ -35,18 +59,21 @@ export default function ProductsPage() {
               at every step. Reach out any time to discuss your device or project.
             </p>
             <div className="grid gap-6 md:grid-cols-2">
-              <div>
+              <div className="rounded-xl border border-gray-200 p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg hover:border-pink-300">
                 <h2 className="text-2xl font-semibold text-pink-800">Services</h2>
-                <ul className="mt-4 space-y-2 text-gray-700">
-                  {services.map((item) => (
-                    <li key={item} className="flex gap-2 leading-relaxed">
-                      <span className="mt-1 h-2 w-2 rounded-full bg-pink-700" />
-                      <span>{item}</span>
-                    </li>
+                <div className="mt-4 space-y-4">
+                  {services.map(({ title, description }) => (
+                    <div key={title} className="flex gap-3">
+                      <span className="mt-2 h-2 w-2 rounded-full bg-pink-700" />
+                      <div className="space-y-1 leading-relaxed">
+                        <p className="font-semibold">{title}</p>
+                        <p className="text-gray-700">{description}</p>
+                      </div>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
-              <div>
+              <div className="rounded-xl border border-gray-200 p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg hover:border-pink-300">
                 <h3 className="text-2xl font-semibold text-pink-800">Service Steps</h3>
                 <ol className="mt-4 space-y-3 text-gray-700">
                   {steps.map((step, idx) => (
@@ -78,7 +105,6 @@ export default function ProductsPage() {
                 </a>
               </div>
             </div>
-
           </div>
         </div>
       </section>

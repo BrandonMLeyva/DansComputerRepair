@@ -27,7 +27,7 @@ export default function Header() {
             className="h-16 w-16 rounded-md object-contain"
           />
           <div className="leading-tight">
-            <h1 className="text-xl font-semibold tracking-tight">
+            <h1 className="text-xl font-semibold tracking-tight text-gray-900">
               Dan&apos;s Computer Repair
             </h1>
             <p className="text-sm text-gray-600">
