@@ -1,8 +1,9 @@
 //needed to create new component file for this tile
 'use client';
-
+import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import dayjs from 'dayjs';
+
 
 //filter options for dropdown
 const FILTER_OPTIONS = [
@@ -15,13 +16,20 @@ const FILTER_OPTIONS = [
 ];
 
 //badge component for status display
-function StatusBadge({ status }) {
+function StatusBadge({ status, updateStatus, row , router}) {
   const key = String(status || '').toLowerCase(); //uses tolowercase for easier comparison
 
   if (key.includes('pending')) {
     return (
       <span className="inline-block rounded-md bg-gray-200 px-2 py-1 font-semibold text-gray-900">
-        {status}
+        <select value = {status} 
+        onChange={async (Event) => {updateStatus(row.ID, Event.target.value);
+        router.refresh();
+         }}>
+          <option value ="Pending">Pending</option>
+          <option value="In progress">In progress</option>
+          <option value="Completed">Completed</option>
+        </select>
       </span>
     );
   }
@@ -33,14 +41,28 @@ function StatusBadge({ status }) {
   ) {
     return (
       <span className="inline-block rounded-md bg-green-200 px-2 py-1 font-semibold text-green-900">
-        {status}
+         <select value = {status} 
+        onChange={async (Event) => {updateStatus(row.ID, Event.target.value);
+        router.refresh();
+         }}>
+          <option value ="Pending">Pending</option>
+          <option value="In progress">In progress</option>
+          <option value="Completed">Completed</option>
+        </select>
       </span>
     );
   }
 
   return (
     <span className="inline-block rounded-md bg-blue-200 px-2 py-1 font-semibold text-blue-900">
-      {status}
+       <select value = {status} 
+        onChange={async (Event) => {updateStatus(row.ID, Event.target.value);
+        router.refresh();
+         }}>
+          <option value ="Pending">Pending</option>
+          <option value="In progress">In progress</option>
+          <option value="Completed">Completed</option>
+        </select>
     </span>
   );
 }
@@ -56,7 +78,9 @@ function normalizeValue(row, field) {
 }
 
 //main tile component
-export default function OrdersPanel({ rows }) {
+export default function OrdersPanel({ rows,updateStatus}) {
+  const router = useRouter();
+
   const [searchTerm, setSearchTerm] = useState('');
   const [filterField, setFilterField] = useState('all');
 
@@ -131,7 +155,7 @@ export default function OrdersPanel({ rows }) {
                 <td className="px-3 py-3 align-top">{row.ID}</td>
                 <td className="px-3 py-3 align-top">{row.Customer}</td>
                 <td className="px-3 py-3 align-top">
-                  <StatusBadge status={row.Status} />
+                  <StatusBadge status={row.Status} updateStatus={updateStatus} row = {row} router={router}/>
                 </td>
                 <td className="px-3 py-3 align-top">
                   {normalizeValue(row, 'Dates')}

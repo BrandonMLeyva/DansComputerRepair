@@ -3,11 +3,32 @@ import dayjs from 'dayjs';
 import { createClient } from '@supabase/supabase-js';
 import OrdersPanel from './OrdersPanel';
 
+//creating a function to update status to Database
+  export async function updateStatus(id, newStatus) {
+    "use server";
+
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    );
+
+    const { data ,error } = await supabase
+      .from('Admin_Page_Order')
+      .update({ Status: newStatus})
+      .eq('ID', id);
+    if (error) {
+      console.error('Error updating status:', error);
+    } else {
+      console.log('Status updated successfully:');
+    }
+  }
+
 
 export const metadata = {
   title: 'Dashboard',
   description: 'Admin dashboard'
 }
+
 //change the default to include async
 export default async function DashboardPage() {
   // Ensure env vars exist to avoid 500 during local testing
@@ -86,7 +107,7 @@ export default async function DashboardPage() {
 
         <section className="mt-8">
           <h2 className="text-xl font-semibold">Orders</h2>
-          <OrdersPanel rows={rows ?? []} />
+          <OrdersPanel rows={rows ?? []}  updateStatus={updateStatus}/>
         </section>
         <div className="mt-5">
             <h3 className="text-xl font-semibold">Notifications</h3>
