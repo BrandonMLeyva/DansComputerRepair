@@ -1,101 +1,140 @@
 "use client";
 import { useEffect, useState } from "react";
+import { createClient } from "@supabase/supabase-js";
 
 export default function Home() {
-  const [index, setIndex] = useState(0);
 
-  const reviews = [
-    {
-      type: "local",
-      name: "Pat O",
-      rating: 5,
-      date: "6/18/2025",
-      text: "Very honest, very knowledgeable. 5-star video card and power supply install. Will I use him again? Yes.",
-      photos: [
-      "/images/brokenlaptop.jpg",
-    ],
-    },
-    {
-      type: "local",
-      name: "Jessica V",
-      rating: 5,
-      date: "5/12/2025",
-      text: "Fast, friendly, and professional service. Fixed my laptop in no time!",
-    },
-    {type: "yelp", 
-      embed: ` <span class="yelp-review" data-review-id="obNvJEsjNpDHE8P0Aji5uw" data-hostname="www.yelp.com">
-      Read <a href="https://www.yelp.com/user_details?userid=ZcBia4ui1wKLn4r0fuUgBw" rel="nofollow noopener">Emmanuel N.</a>'s 
-      <a href="https://www.yelp.com/biz/dan-s-computer-repair-sacramento-2?hrid=obNvJEsjNpDHE8P0Aji5uw" rel="nofollow noopener">review</a> 
-      of <a href="https://www.yelp.com/biz/rm7wutt8n6aimfyUVd8Fqg" rel="nofollow noopener">Dan’s Computer Repair</a> on 
-      <a href="https://www.yelp.com" rel="nofollow noopener">Yelp</a>
-    </span>`},
-    {type: "yelp", 
-      embed:`<span class="yelp-review" data-review-id="o3f-kqbIRbJNKvaiHmOCrA" data-hostname="www.yelp.com">
-      Read <a href="https://www.yelp.com/user_details?userid=UhDS4R5uewlxzbXxgaSb1g" rel="nofollow noopener">Jessica V.</a>'s 
-      <a href="https://www.yelp.com/biz/dan-s-computer-repair-sacramento-2?hrid=o3f-kqbIRbJNKvaiHmOCrA" rel="nofollow noopener">review</a> 
-      of <a href="https://www.yelp.com/biz/rm7wutt8n6aimfyUVd8Fqg" rel="nofollow noopener">Dan’s Computer Repair</a> on
-      <a href="https://www.yelp.com" rel="nofollow noopener">Yelp</a>
-    </span>`},
-    {type: "yelp", 
-      embed:`<span class="yelp-review" data-review-id="dS1bNufO6xIrpywibYK1cg" data-hostname="www.yelp.com">
-      Read <a href="https://www.yelp.com/user_details?userid=nxRUDtmFRdbHtVSG5q_ekA" rel="nofollow noopener">Gerry Andre</a>'s 
-      <a href="https://www.yelp.com/biz/dan-s-computer-repair-sacramento-2?hrid=dS1bNufO6xIrpywibYK1cg" rel="nofollow noopener">review</a> 
-      of <a href="https://www.yelp.com/biz/rm7wutt8n6aimfyUVd8Fqg" rel="nofollow noopener">Dan’s Computer Repair</a> on 
-      <a href="https://www.yelp.com" rel="nofollow noopener">Yelp</a>
-    </span>`},
-  ];
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  );
+
+  const [localReviews, setLocalReviews] = useState([]);
+  const [yelpReviews, setYelpReviews] = useState([]);
+    
+  const [index, setIndex] = useState(0);
+  const [showYelp, setShowYelp] = useState(false);
+
+  const reviews = showYelp ? yelpReviews : localReviews;
+
+  useEffect(() => setIndex(0), [showYelp, localReviews.length]);
 
   useEffect(() => {
-  if (reviews[index].type === "yelp") {
-    const script = document.createElement("script");
-    script.src = "https://www.yelp.com/embed/widgets.js";
-    script.async = true;
+    async function fetchLocalReviews() {
+      const { data, error } = await supabase
+        .from("reviews")
+        .select("*")
+        .order("creationTime", { ascending: false });
 
-    script.onload = () => {
-      document.body.classList.add("yelp-embed-loaded");
+      console.log("Fetched from Supabase:", data, "error:", error);
+
+      if (error) console.error(error);
+      const mappedReviews = data.map((review) => ({
+        name: review.name,
+        rating: review.rating,
+        date: new Date(review.creationTime).toLocaleDateString(),
+        text: review.reviewText,
+        photos: review.photoUrl ? [review.photoUrl] : [],
+      }));
+      if (data) setLocalReviews(mappedReviews);
+      else setLocalReviews(data);
     }
-    document.body.appendChild(script);
 
-    return () => {
-      document.body.classList.remove("yelp-embed-loaded");
-      document.body.removeChild(script);
-    };
-  }
-}, [index]);
+    fetchLocalReviews();
+  }, []);
+
+  useEffect(() => {
+    async function fetchYelpReviews() {
+      const { data, error } = await supabase
+        .from("Yelp_Embed_Reviews")
+        .select("*")
+        .order("id", { ascending: true });
+
+        console.log("Fetched Yelp embeds:", data, "error:", error);
+
+        if (error) {
+          console.error(error);
+          return;
+        }
+
+        const mapped = data.map(row => ({
+          embed: row.embed
+        }));
+
+        setYelpReviews(mapped);
+    }
+
+    fetchYelpReviews();
+  }, []);
+  
+
+  useEffect(() => {
+    if (showYelp) {
+      const script = document.createElement("script");
+      script.src = "https://www.yelp.com/embed/widgets.js";
+      script.async = true;
+
+      script.onload = () => {
+        document.body.classList.add("yelp-embed-loaded");
+      }
+      document.body.appendChild(script);
+
+      return () => {
+        document.body.classList.remove("yelp-embed-loaded");
+        document.body.removeChild(script);
+      };
+    }
+  }, [showYelp, index]);
 
   const nextReview = () => setIndex((index + 1) % reviews.length);
   const prevReview = () => setIndex((index - 1 + reviews.length) % reviews.length);
 
 return (
-    <main className="flex flex-col min-h-screen">
-      {/* --- Blank space for future content --- */}
+  <main className="flex flex-col min-h-screen">
+    {/* --- Blank space for future content --- */}
       <section className="flex-grow flex items-center justify-center"></section>
 
-      {/* --- Yelp Reviews Section --- */}
-      <section className="bg-white text-black py-16">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-2xl font-semibold mb-10">
-            Reviews For Dan’s Computer Repair
-          </h2>
+        {/* --- Yelp Reviews Section --- */}
+        <section className="bg-white text-black py-16">
+          <div className="max-w-4xl mx-auto px-6 text-center">
+            <div className="flex items-center justify-center gap-4 mb-10">
+              <h2 className="text-2xl font-semibold mb-10">
+                {showYelp ? "Yelp Reviews For Dan’s Computer Repair" : "Local Reviews For Dan’s Computer Repair"}
+              </h2>
+              {/* Toggle Button */}
+              <button
+                onClick={() => setShowYelp(!showYelp)}
+                setindex={0}
+            
+                  className="mb-8 px-4 py-2 bg-gray-300 text-black rounded hover:bg-gray-800 transition"
+              >
+                {showYelp ? "Show Local Reviews" : "Show Yelp Reviews"}
+              </button>
+            </div>
 
-          <div className="flex items-center justify-center gap-6">
-            {/* < Button */}
-            <button
-              onClick={prevReview}
-              className="text-3xl bg-white text-black px-4 py-2 rounded-full hover:bg-gray-700 transition"
-            >
-              {'<'}
-            </button>
+            <div className="flex items-center justify-center gap-6">
+              {/* < Button */}
+              <button
+                onClick={prevReview}
+                className="text-3xl bg-white text-black px-4 py-2 rounded-full hover:bg-gray-700 transition"
+              >
+                {'<'}
+              </button>
 
             {/* Review box */}
-          <div
+            <div
   key={index}
   className={`bg-gray-300 text-black rounded-lg p-8 w-full max-w-3xl min-h-[250px] flex flex-col justify-center text-center shadow-md ${
-    reviews[index].type === "yelp" ? "items-stretch" : "items-center"
+    showYelp ? "items-center" : ""
   }`}
 >
-  {reviews[index].type === "local" ? (
+
+  {!reviews[index] ? (
+    <p>No Reviews or Is Loading Them.....</p>
+  ) :
+  !showYelp ? (
     <>
+
       <div className="flex justify-between w-full">
         <span className="font-semibold">{reviews[index].name}</span>
         
@@ -108,7 +147,7 @@ return (
       <div className="flex justify-between w-full mb-2">
       <p className="text-base indent-0">{reviews[index].text}</p>
       </div>
-      {/* ✅ Add this: Photo Gallery */}
+      {/* Photo Gallery */}
     {reviews[index].photos && (
       <div className="flex flex-wrap justify-center gap-4 mt-2">
         {reviews[index].photos.map((photo, i) => (
@@ -123,7 +162,10 @@ return (
     )}
     </>
   ) : (
-    <div dangerouslySetInnerHTML={{ __html: reviews[index].embed }} />
+    <div
+    className="w-full"
+     dangerouslySetInnerHTML={{ __html: reviews[index].embed }} 
+     />
   )}
 </div>
 
