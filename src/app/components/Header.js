@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { motion } from "framer-motion";
 
 export default function Header() {
   const router = useRouter();
@@ -29,7 +28,9 @@ export default function Header() {
             <h1 className="text-xl font-semibold tracking-tight">
               Dan&apos;s Computer Repair
             </h1>
-            <p className="text-sm text-gray-600">IT Services and Computer Repair</p>
+            <p className="text-sm text-gray-600">
+              IT Services and Computer Repair
+            </p>
           </div>
         </div>
 
@@ -38,41 +39,30 @@ export default function Header() {
           <ul className="flex items-center gap-4">
             <li>
               <MotionButton
-              <MotionButton
                 type="button"
                 onClick={() => handleNavigation("/")}
-                whileHover={hover}
-                whileTap={tap}
-                className="rounded px-2 py-1 text-gray-700 hover:text-gray-900 hover:underline hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
                 whileHover={hover}
                 whileTap={tap}
                 className="rounded px-2 py-1 text-gray-700 hover:text-gray-900 hover:underline hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
               >
                 Home
               </MotionButton>
-              </MotionButton>
             </li>
 
             <li>
-              <MotionButton
               <MotionButton
                 type="button"
                 onClick={() => handleNavigation("/about")}
                 whileHover={hover}
                 whileTap={tap}
                 className="rounded px-2 py-1 text-gray-700 hover:text-gray-900 hover:underline hover:bg-purple-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
-                whileHover={hover}
-                whileTap={tap}
-                className="rounded px-2 py-1 text-gray-700 hover:text-gray-900 hover:underline hover:bg-purple-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
               >
                 Products
-              </MotionButton>
               </MotionButton>
             </li>
 
             {/* Computer Building */}
             <li>
-              <MotionButton
               <MotionButton
                 type="button"
                 onClick={() =>
@@ -84,17 +74,12 @@ export default function Header() {
               >
                 Computer Building
               </MotionButton>
-              </MotionButton>
             </li>
 
             {/* Service Request */}
             <li>
               <MotionButton
                 type="button"
-                onClick={() => handleNavigation("/service-request")}
-                whileHover={hover}
-                whileTap={tap}
-                className="rounded px-2 py-1 text-gray-700 hover:text-gray-900 hover:underline hover:bg-red-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
                 onClick={() => handleNavigation("/service-request")}
                 whileHover={hover}
                 whileTap={tap}
