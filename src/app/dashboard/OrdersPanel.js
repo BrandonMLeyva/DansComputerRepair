@@ -4,65 +4,74 @@ import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import dayjs from 'dayjs';
 
+// Status choices for filtering and updates
+const STATUS_FILTER_OPTIONS = [
+  { value: 'all', label: 'All' },
+  { value: 'Completed', label: 'Complete' },
+  { value: 'In progress', label: 'In progress' },
+  { value: 'Pending', label: 'Pending' },
+];
+const STATUS_UPDATE_OPTIONS = [
+  { value: 'Completed', label: 'Complete' },
+  { value: 'In progress', label: 'In progress' },
+  { value: 'Pending', label: 'Pending' },
+  { value: 'Cancelled', label: 'Cancelled' }, // keep legacy/status edge cases
+];
 
-//filter options for dropdown
-const FILTER_OPTIONS = [
-  { value: 'all', label: 'All fields' },
-  { value: 'ID', label: 'ID' },
-  { value: 'Customer', label: 'Customer' },
-  { value: 'Status', label: 'Status' },
-  { value: 'Dates', label: 'Date' },
-  { value: 'Notes', label: 'Notes' },
+// Sort choices
+const SORT_OPTIONS = [
+  { value: 'az', label: 'A-Z (Customer)' },
+  { value: 'date', label: 'Date' },
+  { value: 'id', label: 'ID' },
+];
+
+const MONTH_OPTIONS = [
+  { value: 'all', label: 'All months' },
+  { value: 'Jan', label: 'Jan' },
+  { value: 'Feb', label: 'Feb' },
+  { value: 'Mar', label: 'Mar' },
+  { value: 'Apr', label: 'Apr' },
+  { value: 'May', label: 'May' },
+  { value: 'Jun', label: 'Jun' },
+  { value: 'Jul', label: 'Jul' },
+  { value: 'Aug', label: 'Aug' },
+  { value: 'Sep', label: 'Sep' },
+  { value: 'Oct', label: 'Oct' },
+  { value: 'Nov', label: 'Nov' },
+  { value: 'Dec', label: 'Dec' },
 ];
 
 //badge component for status display
-function StatusBadge({ status, updateStatus, row , router}) {
+function StatusBadge({ status, updateStatus, row, router }) {
   const key = String(status || '').toLowerCase(); //uses tolowercase for easier comparison
 
-  if (key.includes('pending')) {
-    return (
-      <span className="inline-block rounded-md bg-gray-200 px-2 py-1 font-semibold text-gray-900">
-        <select value = {status} 
-        onChange={async (Event) => {updateStatus(row.ID, Event.target.value);
-        router.refresh();
-         }}>
-          <option value ="Pending">Pending</option>
-          <option value="In progress">In progress</option>
-          <option value="Completed">Completed</option>
-        </select>
-      </span>
-    );
-  }
-
-  if (
-    key.includes('in progress') ||
-    key.includes('in-progress') ||
-    key.includes('progress')
-  ) {
-    return (
-      <span className="inline-block rounded-md bg-green-200 px-2 py-1 font-semibold text-green-900">
-         <select value = {status} 
-        onChange={async (Event) => {updateStatus(row.ID, Event.target.value);
-        router.refresh();
-         }}>
-          <option value ="Pending">Pending</option>
-          <option value="In progress">In progress</option>
-          <option value="Completed">Completed</option>
-        </select>
-      </span>
-    );
-  }
+  const colorClass = () => {
+    if (key.includes('pending')) return 'bg-gray-200 text-gray-900';
+    if (
+      key.includes('in progress') ||
+      key.includes('in-progress') ||
+      key.includes('progress')
+    )
+      return 'bg-green-200 text-green-900';
+    if (key.includes('cancel')) return 'bg-red-200 text-red-900';
+    return 'bg-blue-200 text-blue-900';
+  };
 
   return (
-    <span className="inline-block rounded-md bg-blue-200 px-2 py-1 font-semibold text-blue-900">
-       <select value = {status} 
-        onChange={async (Event) => {updateStatus(row.ID, Event.target.value);
-        router.refresh();
-         }}>
-          <option value ="Pending">Pending</option>
-          <option value="In progress">In progress</option>
-          <option value="Completed">Completed</option>
-        </select>
+    <span className={`inline-block rounded-md px-2 py-1 font-semibold ${colorClass()}`}>
+      <select
+        value={status}
+        onChange={async Event => {
+          updateStatus(row.ID, Event.target.value);
+          router.refresh();
+        }}
+      >
+        {STATUS_UPDATE_OPTIONS.map(option => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
     </span>
   );
 }
@@ -78,29 +87,71 @@ function normalizeValue(row, field) {
 }
 
 //main tile component
-export default function OrdersPanel({ rows,updateStatus}) {
+export default function OrdersPanel({ rows, updateStatus }) {
   const router = useRouter();
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterField, setFilterField] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [sortField, setSortField] = useState('az');
+  const [monthFilter, setMonthFilter] = useState('all');
 
   const filteredRows = useMemo(() => {
+    const byStatus =
+      statusFilter === 'all'
+        ? rows
+        : rows.filter(
+            row =>
+              String(row?.Status || '').toLowerCase() ===
+              statusFilter.toLowerCase()
+          );
+
+    const byMonth =
+      monthFilter === 'all'
+        ? byStatus
+        : byStatus.filter(row => {
+            const date = dayjs(row?.Dates);
+            if (!date.isValid()) return false;
+            return date.format('MMM') === monthFilter;
+          });
+
     const term = searchTerm.trim().toLowerCase();
-    if (!term) return rows;
-
-    const fieldsToSearch =
-      filterField === 'all'
-        ? FILTER_OPTIONS.filter(option => option.value !== 'all').map(
-            option => option.value
+    const searched = !term
+      ? byMonth
+      : byMonth.filter(row =>
+          ['ID', 'Customer', 'Status', 'Dates', 'Notes'].some(field =>
+            normalizeValue(row, field).toLowerCase().includes(term)
           )
-        : [filterField];
+        );
 
-    return rows.filter(row =>
-      fieldsToSearch.some(field =>
-        normalizeValue(row, field).toLowerCase().includes(term)
-      )
-    );
-  }, [rows, searchTerm, filterField]);
+    const sorted = [...searched].sort((a, b) => {
+      if (sortField === 'az') {
+        return String(a?.Customer || '').localeCompare(
+          String(b?.Customer || '')
+        );
+      }
+      if (sortField === 'date') {
+        const aDate = dayjs(a?.Dates);
+        const bDate = dayjs(b?.Dates);
+        if (!aDate.isValid() && !bDate.isValid()) return 0;
+        if (!aDate.isValid()) return 1;
+        if (!bDate.isValid()) return -1;
+        return bDate.valueOf() - aDate.valueOf();
+      }
+      if (sortField === 'id') {
+        const aId = a?.ID ?? '';
+        const bId = b?.ID ?? '';
+        const aNum = Number(aId);
+        const bNum = Number(bId);
+        const bothNumeric =
+          !Number.isNaN(aNum) && !Number.isNaN(bNum);
+        if (bothNumeric) return aNum - bNum;
+        return String(aId).localeCompare(String(bId));
+      }
+      return 0;
+    });
+
+    return sorted;
+  }, [rows, searchTerm, statusFilter, sortField]);
 
   return (
     <div className="rounded-none bg-gray-100 p-4 text-gray-900">
@@ -117,15 +168,47 @@ export default function OrdersPanel({ rows,updateStatus}) {
           />
         </div>
 
-        {/* Filter dropdown */}
+        {/* Status filter dropdown */}
         <label className="flex items-center gap-2 text-sm font-medium text-gray-900">
-          <span>Filter</span>
+          <span>Status</span>
           <select
-            value={filterField}
-            onChange={event => setFilterField(event.target.value)}
+            value={statusFilter}
+            onChange={event => setStatusFilter(event.target.value)}
             className="rounded border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
-            {FILTER_OPTIONS.map(option => (
+            {STATUS_FILTER_OPTIONS.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        {/* Month filter dropdown */}
+        <label className="flex items-center gap-2 text-sm font-medium text-gray-900">
+          <span>Month</span>
+          <select
+            value={monthFilter}
+            onChange={event => setMonthFilter(event.target.value)}
+            className="rounded border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            {MONTH_OPTIONS.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        {/* Sort dropdown */}
+        <label className="flex items-center gap-2 text-sm font-medium text-gray-900">
+          <span>Sort</span>
+          <select
+            value={sortField}
+            onChange={event => setSortField(event.target.value)}
+            className="rounded border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            {SORT_OPTIONS.map(option => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
@@ -155,7 +238,12 @@ export default function OrdersPanel({ rows,updateStatus}) {
                 <td className="px-3 py-3 align-top">{row.ID}</td>
                 <td className="px-3 py-3 align-top">{row.Customer}</td>
                 <td className="px-3 py-3 align-top">
-                  <StatusBadge status={row.Status} updateStatus={updateStatus} row = {row} router={router}/>
+                  <StatusBadge
+                    status={row.Status}
+                    updateStatus={updateStatus}
+                    row={row}
+                    router={router}
+                  />
                 </td>
                 <td className="px-3 py-3 align-top">
                   {normalizeValue(row, 'Dates')}
