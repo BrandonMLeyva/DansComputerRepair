@@ -1,5 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
+import Services from "./home-services-title.js";
+
 
 export default function Home() {
   const [index, setIndex] = useState(0);
@@ -70,6 +72,9 @@ return (
     <main className="flex flex-col min-h-screen">
       {/* --- Blank space for future content --- */}
       <section className="flex-grow flex items-center justify-center"></section>
+
+      {/* Services Section */}
+      <Services />
 
       {/* --- Yelp Reviews Section --- */}
       <section className="bg-white text-black py-16">
