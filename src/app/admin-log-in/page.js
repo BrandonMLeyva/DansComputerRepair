@@ -33,6 +33,17 @@ async function handleSubmit(e) {
     return;
     }
 
+    // Save cookies for the middleware
+    const { data: sess} = await supabase.auth.getSession();
+    await fetch ("/api/session/sync", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        access_token: sess?.session?.access_token,
+        refresh_token: sess?.session?.refresh_token,
+      }),
+    });
+
     // Checks the AAL
     const { data: aalData, error: aalError} = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
     if (aalError) {
@@ -106,7 +117,7 @@ async function submitMFA(e) {
     // User login with MFA was successful
     setMfaOpen(false);
     setMfaCode("");
-    // Basic code, replace with real redirect.
+
     router.replace("/dashboard");
   }
 
