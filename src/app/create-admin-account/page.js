@@ -44,7 +44,7 @@ export default function CreateAdminAccountPage() {
       });
 
       if (!res.needsConfirmation) {
-        setTimeout(() => router.push('/dashboard'), 700);
+        setTimeout(() => router.push('/init-mfa'), 700);
       } else {
         form.reset();
       }
